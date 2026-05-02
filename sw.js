@@ -1,7 +1,7 @@
 const CACHE_NAME = 'dmais-saude-v1';
 const ASSETS = [
     './index.html',
-    './icon.svg',
+    './icon.png',
     './manifest.json'
 ];
 
