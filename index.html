@@ -308,6 +308,7 @@
             <div class="chips-group" id="atividades-group">
                 <!-- Injected via JS -->
             </div>
+            <div id="activity-metrics-container" style="display: flex; flex-direction: column; gap: 12px; margin-top: 16px;"></div>
         </div>
 
         <div class="cards-grid">
@@ -397,6 +398,7 @@
             <div class="modal-body">
                 <p>Evolução do seu Score nos últimos 7 dias:</p>
                 <div class="chart-container" id="chart-container"></div>
+                <div id="history-stats-container"></div>
             </div>
         </div>
     </div>
@@ -546,6 +548,7 @@
                     const cardTitle = this.closest('.card').querySelector('h3').innerText;
                     if(cardTitle.includes('Atividades')) {
                         this.classList.toggle('active');
+                        renderActivityMetrics();
                     } else {
                         const siblings = this.parentElement.querySelectorAll('.chip, .chip-card');
                         siblings.forEach(s => s.classList.remove('active'));
@@ -553,6 +556,34 @@
                     }
                 });
             });
+        }
+
+        function renderActivityMetrics() {
+            const container = document.getElementById('activity-metrics-container');
+            if(!container) return;
+            const measurableActivities = ['Corrida', 'Caminhada', 'Ciclismo', 'Pedalada', 'Bike'];
+            let html = '';
+            
+            const existingInputs = {};
+            container.querySelectorAll('input').forEach(inp => {
+                existingInputs[inp.getAttribute('data-act')] = inp.value;
+            });
+
+            document.querySelectorAll('#atividades-group .chip.active').forEach(chip => {
+                const act = chip.getAttribute('data-val');
+                const isMeasurable = measurableActivities.some(m => act.toLowerCase().includes(m.toLowerCase()));
+                if(isMeasurable) {
+                    const val = existingInputs[act] || '';
+                    html += `
+                        <div class="input-group" style="border-color: var(--primary-glow); background: var(--card-bg);">
+                            <span style="width: 100px; color: var(--text-main); font-weight: 500;">${act}</span>
+                            <input type="number" class="act-metric-input" data-act="${act}" step="0.1" placeholder="Distância" value="${val}">
+                            <span style="color:var(--primary)">km</span>
+                        </div>
+                    `;
+                }
+            });
+            container.innerHTML = html;
         }
 
         // --- Load / Clear Data ---
@@ -564,6 +595,8 @@
             document.querySelectorAll('.chip, .chip-card').forEach(c => c.classList.remove('active'));
             document.getElementById('agua-input').value = '';
             document.getElementById('tempo-pe-input').value = '';
+            const metricsContainer = document.getElementById('activity-metrics-container');
+            if(metricsContainer) metricsContainer.innerHTML = '';
             updateScoreCircle('-', 'Registre');
         }
 
@@ -588,6 +621,13 @@
                         const chip = document.querySelector(`#atividades-group .chip[data-val="${act}"]`);
                         if(chip) chip.classList.add('active');
                     });
+                    renderActivityMetrics();
+                    if(data.activityMetrics) {
+                        for(const act in data.activityMetrics) {
+                            const inp = document.querySelector(`.act-metric-input[data-act="${act}"]`);
+                            if(inp) inp.value = data.activityMetrics[act];
+                        }
+                    }
                 }
                 
                 if(data.water) document.getElementById('agua-input').value = data.water;
@@ -607,7 +647,7 @@
 
         // --- Save & Calculate Logic ---
         function gatherFormData() {
-            let data = { food: {}, activities: [], water: null, standing: null, screen: null, sleep: null };
+            let data = { food: {}, activities: [], activityMetrics: {}, water: null, standing: null, screen: null, sleep: null };
             
             document.querySelectorAll('.food-options').forEach(opt => {
                 const meal = opt.getAttribute('data-meal');
@@ -617,6 +657,10 @@
             
             document.querySelectorAll('#atividades-group .chip.active').forEach(chip => {
                 data.activities.push(chip.getAttribute('data-val'));
+            });
+
+            document.querySelectorAll('.act-metric-input').forEach(inp => {
+                if(inp.value) data.activityMetrics[inp.getAttribute('data-act')] = parseFloat(inp.value);
             });
 
             data.water = document.getElementById('agua-input').value;
@@ -791,10 +835,14 @@
 
         function openHistoryModal() {
             const chartContainer = document.getElementById('chart-container');
+            const statsContainer = document.getElementById('history-stats-container');
             chartContainer.innerHTML = '';
             
             let html = '';
             let d = new Date();
+            let totalWater = 0;
+            let actTotals = {};
+
             for(let i=6; i>=0; i--) {
                 let checkDate = new Date();
                 checkDate.setDate(checkDate.getDate() - i);
@@ -802,18 +850,56 @@
                 let label = checkDate.toLocaleDateString('pt-BR', {weekday: 'short'}).replace('.','');
                 
                 let saved = localStorage.getItem('dmais_saude_record_' + key);
-                let score = saved ? JSON.parse(saved).score : 0;
-                let height = score * 10; 
-                
-                html += `
-                    <div class="chart-bar-wrapper">
-                        <span class="chart-score">${score > 0 ? score : ''}</span>
-                        <div class="chart-bar" style="height: ${height}%"></div>
-                        <span class="chart-label">${label}</span>
-                    </div>
-                `;
+                if(saved) {
+                    let record = JSON.parse(saved);
+                    let score = record.score || 0;
+                    let height = score * 10; 
+                    
+                    html += `
+                        <div class="chart-bar-wrapper">
+                            <span class="chart-score">${score > 0 ? score : ''}</span>
+                            <div class="chart-bar" style="height: ${height}%"></div>
+                            <span class="chart-label">${label}</span>
+                        </div>
+                    `;
+
+                    if(record.water) totalWater += parseFloat(record.water);
+                    if(record.activityMetrics) {
+                        for(const act in record.activityMetrics) {
+                            actTotals[act] = (actTotals[act] || 0) + record.activityMetrics[act];
+                        }
+                    }
+                } else {
+                    html += `
+                        <div class="chart-bar-wrapper">
+                            <span class="chart-score"></span>
+                            <div class="chart-bar" style="height: 0%"></div>
+                            <span class="chart-label">${label}</span>
+                        </div>
+                    `;
+                }
             }
             chartContainer.innerHTML = html;
+
+            if(statsContainer) {
+                let statsHtml = `<div style="margin-top:24px; padding-top:16px; border-top:1px solid var(--border-color);">
+                    <h4 style="color:var(--text-main); margin-bottom:16px; font-size:15px;"><i class="ri-fire-fill" style="color:var(--warning)"></i> Acumulado da Semana (7 dias)</h4>`;
+                
+                let hasStats = false;
+                for(const act in actTotals) {
+                    statsHtml += `<div style="display:flex; justify-content:space-between; margin-bottom:8px; color:var(--text-muted); font-size:14px;"><span>${act}</span> <span style="color:var(--primary); font-weight:600;">${actTotals[act].toFixed(1)} km</span></div>`;
+                    hasStats = true;
+                }
+                if(totalWater > 0) {
+                    statsHtml += `<div style="display:flex; justify-content:space-between; margin-bottom:8px; color:var(--text-muted); font-size:14px;"><span>Água Bebida</span> <span style="color:#0ea5e9; font-weight:600;">${totalWater.toFixed(1)} L</span></div>`;
+                    hasStats = true;
+                }
+                if(!hasStats) statsHtml += `<p style="color:var(--text-muted); font-size:13px;">Nenhum volume registrado nos últimos 7 dias.</p>`;
+                
+                statsHtml += `</div>`;
+                statsContainer.innerHTML = statsHtml;
+            }
+
             document.getElementById('history-modal').classList.add('active');
         }
 
