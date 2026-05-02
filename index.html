@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,6 +8,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet">
+    <!-- Confetti Library -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         :root {
             --bg-color: #0b1016;
@@ -21,649 +23,191 @@
             --text-muted: #8b9bb4;
             --border-color: #1e293b;
             --input-bg: #19242d;
+            --modal-overlay: rgba(0,0,0,0.8);
+            --danger: #ef4444;
+            --warning: #f59e0b;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Inter', sans-serif;
+        [data-theme="light"] {
+            --bg-color: #f1f5f9;
+            --sidebar-bg: #ffffff;
+            --card-bg: #ffffff;
+            --card-hover: #f8fafc;
+            --primary: #10b981; 
+            --primary-dim: rgba(16, 185, 129, 0.15);
+            --primary-glow: rgba(16, 185, 129, 0.3);
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --input-bg: #f8fafc;
+            --modal-overlay: rgba(0,0,0,0.5);
         }
 
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            display: flex;
-            height: 100vh;
-            overflow: hidden;
-        }
-
-        /* Sidebar Desktop */
-        .sidebar {
-            width: 280px;
-            background-color: var(--sidebar-bg);
-            border-right: 1px solid var(--border-color);
-            padding: 24px;
-            display: flex;
-            flex-direction: column;
-            overflow-y: auto;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 28px;
-            font-weight: 700;
-            color: var(--primary);
-            margin-bottom: 4px;
-        }
-
-        .logo-subtitle {
-            color: var(--text-muted);
-            font-size: 14px;
-            margin-bottom: 40px;
-        }
-
-        .nav-menu {
-            list-style: none;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            flex: 1;
-        }
-
-        .nav-item a {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            color: var(--text-main);
-            text-decoration: none;
-            padding: 12px 16px;
-            border-radius: 12px;
-            font-weight: 500;
-            transition: all 0.2s;
-        }
-
-        .nav-item a:hover {
-            background-color: var(--card-bg);
-        }
-
-        .nav-item a.active {
-            background-color: var(--primary-dim);
-            color: var(--primary);
-            border: 1px solid var(--primary-glow);
-        }
-
-        .nav-item a i {
-            font-size: 20px;
-        }
-
-        .premium-card {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 20px;
-            margin-top: auto;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; transition: background-color 0.3s, color 0.3s; }
         
-        .premium-card::before {
-            content: '';
-            position: absolute;
-            top: -50%; left: -50%;
-            width: 200%; height: 200%;
-            background: radial-gradient(circle at top center, var(--primary-glow) 0%, transparent 60%);
-            z-index: 0;
-            opacity: 0.5;
-            pointer-events: none;
-        }
-
-        .premium-card > * {
-            position: relative;
-            z-index: 1;
-        }
-
-        .premium-icon {
-            font-size: 32px;
-            color: var(--primary);
-            margin-bottom: 12px;
-            display: block;
-        }
-
-        .premium-card h4 {
-            color: var(--primary);
-            margin-bottom: 8px;
-        }
-
-        .premium-card p {
-            font-size: 12px;
-            color: var(--text-muted);
-            margin-bottom: 16px;
-            line-height: 1.4;
-        }
-
-        .btn-premium {
-            background-color: var(--primary);
-            color: #000;
-            border: none;
-            width: 100%;
-            padding: 12px;
-            border-radius: 10px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        .btn-premium:hover {
-            background-color: #16c860;
-        }
-
-        /* Main Content */
-        .main-content {
-            flex: 1;
-            padding: 32px 40px;
-            overflow-y: auto;
-            position: relative;
-        }
-
+        .sidebar { width: 280px; background-color: var(--sidebar-bg); border-right: 1px solid var(--border-color); padding: 24px; display: flex; flex-direction: column; overflow-y: auto; transition: background-color 0.3s, border-color 0.3s; }
+        .logo { display: flex; align-items: center; gap: 10px; font-size: 28px; font-weight: 700; color: var(--primary); margin-bottom: 4px; transition: color 0.3s;}
+        .logo-subtitle { color: var(--text-muted); font-size: 14px; margin-bottom: 40px; transition: color 0.3s;}
+        .nav-menu { list-style: none; display: flex; flex-direction: column; gap: 12px; flex: 1; }
+        .nav-item a { display: flex; align-items: center; gap: 16px; color: var(--text-main); text-decoration: none; padding: 12px 16px; border-radius: 12px; font-weight: 500; transition: all 0.2s; cursor: pointer; }
+        .nav-item a:hover { background-color: var(--card-bg); }
+        .nav-item a.active { background-color: var(--primary-dim); color: var(--primary); border: 1px solid var(--primary-glow); }
+        .nav-item a i { font-size: 20px; }
+        
+        .premium-card { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 16px; padding: 20px; margin-top: auto; text-align: center; position: relative; overflow: hidden; transition: background-color 0.3s, border-color 0.3s;}
+        .premium-card::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle at top center, var(--primary-glow) 0%, transparent 60%); z-index: 0; opacity: 0.5; pointer-events: none; }
+        .premium-card > * { position: relative; z-index: 1; }
+        .premium-icon { font-size: 32px; color: var(--primary); margin-bottom: 12px; display: block; }
+        .premium-card h4 { color: var(--primary); margin-bottom: 8px; }
+        .premium-card p { font-size: 12px; color: var(--text-muted); margin-bottom: 16px; line-height: 1.4; }
+        .btn-premium { background-color: var(--primary); color: #000; border: none; width: 100%; padding: 12px; border-radius: 10px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; transition: background 0.2s; }
+        .btn-premium:hover { background-color: #16c860; }
+        
+        .main-content { flex: 1; padding: 32px 40px; overflow-y: auto; position: relative; }
         .main-content::-webkit-scrollbar { width: 8px; }
         .main-content::-webkit-scrollbar-track { background: transparent; }
         .main-content::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
-
-        .top-bar {
-            display: flex;
-            justify-content: flex-end;
-            margin-bottom: 24px;
-        }
-
-        .notification-btn {
-            background: transparent;
-            border: 1px solid var(--border-color);
-            color: var(--text-main);
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            cursor: pointer;
-            position: relative;
-            transition: all 0.2s;
-        }
         
-        .notification-btn:hover {
-            background: var(--card-bg);
-        }
-
-        .notification-btn::after {
-            content: '';
-            position: absolute;
-            top: 10px;
-            right: 12px;
-            width: 8px;
-            height: 8px;
-            background-color: var(--primary);
-            border-radius: 50%;
-        }
-
-        /* Cards General */
-        .card {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 20px;
-            padding: 24px;
-            margin-bottom: 24px;
-        }
-
-        /* Score Card */
-        .score-card {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .score-info h2 {
-            font-size: 28px;
-            margin-bottom: 8px;
-        }
-
-        .score-info p {
-            color: var(--text-muted);
-            margin-bottom: 16px;
-        }
-
-        .btn-report {
-            background-color: var(--primary-dim);
-            color: var(--primary);
-            border: 1px solid var(--primary-glow);
-            padding: 8px 16px;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 500;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
+        .top-bar { display: flex; justify-content: flex-end; align-items: center; margin-bottom: 24px; }
         
-        .btn-report:hover {
-            background-color: var(--primary-glow);
-        }
+        .streak-badge { display: flex; align-items: center; gap: 6px; background: var(--card-bg); border: 1px solid var(--border-color); padding: 8px 14px; border-radius: 12px; font-weight: 600; color: var(--warning); margin-right: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .streak-badge i { font-size: 18px; }
 
-        .score-display {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-
-        .score-circle {
-            position: relative;
-            width: 100px;
-            height: 100px;
-        }
+        .notification-btn { background: transparent; border: 1px solid var(--border-color); color: var(--text-main); width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; position: relative; transition: all 0.2s; }
+        .notification-btn:hover { background: var(--card-bg); }
         
-        .score-circle::after {
-            content: '';
-            position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            width: 120px; height: 120px;
-            background: radial-gradient(circle, var(--primary-glow) 0%, transparent 60%);
-            z-index: 0;
-            pointer-events: none;
+        @keyframes pulseRed {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); border-color: var(--danger); }
+            70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); border-color: var(--danger); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); border-color: var(--border-color); }
         }
+        .notify-pulse { animation: pulseRed 2s infinite; }
+        .notify-pulse i { color: var(--danger); }
 
-        .score-circle svg {
-            position: relative;
-            z-index: 1;
-            transform: rotate(-90deg);
-        }
-
-        .score-circle text {
-            transform: rotate(90deg);
-            transform-origin: 50px 50px;
-        }
-
-        .score-text {
-            display: flex;
-            flex-direction: column;
-        }
+        .card { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 20px; padding: 24px; margin-bottom: 24px; transition: background-color 0.3s, border-color 0.3s;}
         
+        .score-card { display: flex; justify-content: space-between; align-items: center; position: relative; overflow: hidden; }
+        .score-info h2 { font-size: 28px; margin-bottom: 8px; }
+        .score-info p { color: var(--text-muted); margin-bottom: 16px; }
+        .btn-report { background-color: var(--primary-dim); color: var(--primary); border: 1px solid var(--primary-glow); padding: 8px 16px; border-radius: 8px; font-size: 14px; font-weight: 500; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; transition: all 0.2s; }
+        .btn-report:hover { background-color: var(--primary-glow); }
+        
+        .score-display { display: flex; align-items: center; gap: 20px; }
+        .score-circle { position: relative; width: 100px; height: 100px; }
+        .score-circle::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 120px; height: 120px; background: radial-gradient(circle, var(--primary-glow) 0%, transparent 60%); z-index: 0; pointer-events: none; }
+        .score-circle svg { position: relative; z-index: 1; transform: rotate(-90deg); }
+        .score-circle text { transform: rotate(90deg); transform-origin: 50px 50px; }
+        .score-text { display: flex; flex-direction: column; }
         .score-text span:first-child { color: var(--text-muted); font-size: 14px; margin-bottom: 4px; }
         .score-text span:last-child { color: var(--primary); font-weight: 600; font-size: 18px; }
-
-        /* Registrar Dia Header */
-        .register-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 24px;
-        }
-
-        .register-title h3 {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 20px;
-            margin-bottom: 4px;
-        }
         
+        .register-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+        .register-title h3 { display: flex; align-items: center; gap: 10px; font-size: 20px; margin-bottom: 4px; }
         .register-title h3 i { color: var(--primary); }
-
-        .register-title p {
-            color: var(--text-muted);
-            font-size: 14px;
-        }
-
-        .date-picker {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            padding: 10px 16px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            color: var(--text-main);
-            font-weight: 500;
-        }
+        .register-title p { color: var(--text-muted); font-size: 14px; }
         
-        .date-picker i { color: var(--text-muted); }
-
-        /* Section Title */
-        .section-title {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 16px;
-            color: var(--primary);
-        }
-
-        .section-desc {
-            color: var(--text-muted);
-            font-size: 14px;
-            margin-bottom: 16px;
-        }
-
-        /* Food Table */
-        .food-table {
-            display: grid;
-            grid-template-columns: 140px repeat(4, 1fr);
-            gap: 12px;
-            align-items: center;
-        }
-
-        .food-header {
-            display: contents;
-        }
-
-        .food-header span {
-            color: var(--text-muted);
-            font-size: 14px;
-            padding-bottom: 12px;
-            text-align: center;
-        }
-
-        .food-header span:first-child {
-            text-align: left;
-        }
-
-        .food-row-title {
-            font-size: 14px;
-            color: var(--text-main);
-        }
-
-        .radio-btn {
-            background: var(--input-bg);
-            border: 1px solid transparent;
-            height: 44px;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
+        /* Date Picker styling */
+        .date-picker { background-color: var(--card-bg); border: 1px solid var(--border-color); padding: 10px 16px; border-radius: 12px; display: flex; align-items: center; gap: 12px; transition: background-color 0.3s, border-color 0.3s; position: relative; }
+        .date-picker input[type="date"] { background: transparent; border: none; color: var(--text-main); font-family: 'Inter'; font-weight: 600; font-size: 15px; outline: none; cursor: pointer; }
+        /* Hide default calendar icon in webkit to use our own Remix Icon */
+        .date-picker input[type="date"]::-webkit-calendar-picker-indicator { position: absolute; top: 0; left: 0; right: 0; bottom: 0; width: auto; height: auto; color: transparent; background: transparent; cursor: pointer; }
+        .date-picker i { color: var(--text-muted); font-size: 18px; pointer-events: none; }
         
+        .section-title { display: flex; align-items: center; gap: 10px; font-size: 18px; font-weight: 600; margin-bottom: 16px; color: var(--primary); }
+        .section-desc { color: var(--text-muted); font-size: 14px; margin-bottom: 16px; }
+        
+        .food-table { display: grid; grid-template-columns: 140px repeat(4, 1fr); gap: 12px; align-items: center; }
+        .food-header { display: contents; }
+        .food-header span { color: var(--text-muted); font-size: 14px; padding-bottom: 12px; text-align: center; }
+        .food-header span:first-child { text-align: left; }
+        .food-row-title { font-size: 14px; color: var(--text-main); }
+        .radio-btn { background: var(--input-bg); border: 1px solid transparent; height: 44px; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; color: var(--text-main); }
         .radio-btn:hover { background: var(--card-hover); }
-
-        .radio-circle {
-            width: 18px;
-            height: 18px;
-            border-radius: 50%;
-            border: 1.5px solid var(--text-muted);
-        }
-
-        .radio-btn.active {
-            background: var(--primary);
-            color: #000;
-        }
-
-        .radio-btn.active .ri-check-line {
-            font-size: 20px;
-            font-weight: bold;
-        }
-
-        /* Chips Group */
-        .chips-group {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-        }
-
-        .chip {
-            background: var(--input-bg);
-            border: 1px solid var(--border-color);
-            color: var(--text-muted);
-            padding: 12px 20px;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .chip:hover {
-            border-color: var(--text-muted);
-        }
-
-        .chip.active {
-            background: var(--primary);
-            color: #000;
-            border-color: var(--primary);
-            font-weight: 600;
-        }
-
-        /* Cards Grid */
-        .cards-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 24px;
-        }
-
-        /* Complex Cards */
-        .meta-badge {
-            background: var(--primary-dim);
-            color: var(--primary);
-            padding: 4px 8px;
-            border-radius: 6px;
-            font-size: 12px;
-            font-weight: 600;
-            margin-left: auto;
-        }
-
-        .flex-between {
-            display: flex;
-            align-items: center;
-            margin-bottom: 16px;
-        }
-
-        .input-group {
-            background: var(--input-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            padding: 0 16px;
-            height: 48px;
-            transition: border-color 0.2s;
-        }
+        .radio-circle { width: 18px; height: 18px; border-radius: 50%; border: 1.5px solid var(--text-muted); }
+        .radio-btn.active { background: var(--primary); color: #000; }
+        .radio-btn.active .ri-check-line { font-size: 20px; font-weight: bold; }
         
-        .input-group:focus-within {
-            border-color: var(--primary);
-        }
-
-        .input-group input {
-            background: transparent;
-            border: none;
-            color: white;
-            flex: 1;
-            height: 100%;
-            font-size: 16px;
-            outline: none;
-        }
-
-        .input-group span {
-            color: var(--text-muted);
-            font-size: 14px;
-        }
-
-        .chip-card {
-            flex: 1;
-            background: var(--input-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 12px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 4px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .chip-card .title {
-            color: var(--text-main);
-            font-weight: 500;
-            font-size: 14px;
-        }
-
-        .chip-card .subtitle {
-            color: var(--text-muted);
-            font-size: 12px;
-        }
-
-        .chip-card.active {
-            background: var(--primary);
-            border-color: var(--primary);
-        }
+        .chips-group { display: flex; flex-wrap: wrap; gap: 12px; }
+        .chip { background: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-muted); padding: 12px 20px; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+        .chip:hover { border-color: var(--text-muted); }
+        .chip.active { background: var(--primary); color: #000; border-color: var(--primary); font-weight: 600; }
         
-        .chip-card.active .title, .chip-card.active .subtitle {
-            color: #000;
-        }
-
-        /* Save Button */
-        .btn-save {
-            background-color: var(--primary);
-            color: #000;
-            border: none;
-            width: 100%;
-            padding: 16px;
-            border-radius: 12px;
-            font-size: 18px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            cursor: pointer;
-            transition: background-color 0.2s;
-            margin-bottom: 24px;
-        }
-
+        .cards-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+        .meta-badge { background: var(--primary-dim); color: var(--primary); padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: 600; margin-left: auto; }
+        .flex-between { display: flex; align-items: center; margin-bottom: 16px; }
+        
+        .input-group { background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 8px; display: flex; align-items: center; padding: 0 16px; height: 48px; transition: border-color 0.2s; }
+        .input-group:focus-within { border-color: var(--primary); }
+        .input-group input { background: transparent; border: none; color: var(--text-main); flex: 1; height: 100%; font-size: 16px; outline: none; }
+        .input-group span { color: var(--text-muted); font-size: 14px; }
+        
+        .chip-card { flex: 1; background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; transition: all 0.2s; }
+        .chip-card .title { color: var(--text-main); font-weight: 500; font-size: 14px; }
+        .chip-card .subtitle { color: var(--text-muted); font-size: 12px; }
+        .chip-card.active { background: var(--primary); border-color: var(--primary); }
+        .chip-card.active .title, .chip-card.active .subtitle { color: #000; }
+        
+        .btn-save { background-color: var(--primary); color: #000; border: none; width: 100%; padding: 16px; border-radius: 12px; font-size: 18px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 12px; cursor: pointer; transition: background-color 0.2s; margin-bottom: 24px; }
         .btn-save:hover { background-color: #16c860; }
         .btn-save i { font-size: 24px; }
+        
+        .footer-text { text-align: center; color: var(--text-muted); font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 8px; padding-bottom: 24px; }
+        .bottom-nav { display: none; }
 
-        .footer-text {
-            text-align: center;
-            color: var(--text-muted);
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            padding-bottom: 24px;
-        }
+        /* Modals Styles */
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--modal-overlay); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 20px; opacity: 0; visibility: hidden; transition: all 0.3s; }
+        .modal-overlay.active { opacity: 1; visibility: visible; }
+        .modal-content { width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; position: relative; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 20px; padding: 24px; transform: translateY(20px); transition: all 0.3s; }
+        .modal-overlay.active .modal-content { transform: translateY(0); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px; }
+        .modal-header h3 { display: flex; align-items: center; gap: 8px; color: var(--text-main); font-size: 20px; }
+        .close-modal { background: none; border: none; color: var(--text-muted); font-size: 24px; cursor: pointer; transition: color 0.2s; }
+        .close-modal:hover { color: var(--primary); }
+        .modal-body { line-height: 1.6; color: var(--text-main); font-size: 15px; }
+        .modal-body p { margin-bottom: 16px; }
+        
+        /* Report Specific */
+        .praise { color: var(--primary); font-weight: 600; }
+        .warning { color: var(--warning); font-weight: 600; }
 
-        /* Mobile Bottom Nav (Hidden on Desktop) */
-        .bottom-nav {
-            display: none;
-        }
+        /* Chart Specific */
+        .chart-container { display: flex; align-items: flex-end; justify-content: space-between; gap: 8px; height: 180px; margin-top: 24px; padding-bottom: 20px; border-bottom: 1px solid var(--border-color); }
+        .chart-bar-wrapper { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; position: relative; }
+        .chart-bar { width: 100%; max-width: 30px; background: var(--primary); border-radius: 6px 6px 0 0; transition: height 0.8s ease-out; height: 0%; opacity: 0.8;}
+        .chart-bar-wrapper:hover .chart-bar { opacity: 1; }
+        .chart-label { font-size: 11px; color: var(--text-muted); margin-top: 8px; font-weight: 500; }
+        .chart-score { position: absolute; top: -20px; font-size: 12px; font-weight: 600; color: var(--text-main); opacity: 0; transition: opacity 0.3s; }
+        .chart-bar-wrapper:hover .chart-score { opacity: 1; }
+        
+        /* Settings List */
+        .settings-list { display: flex; flex-direction: column; gap: 12px; }
+        .settings-item { display: flex; justify-content: space-between; align-items: center; background: var(--input-bg); padding: 12px 16px; border-radius: 8px; border: 1px solid var(--border-color); }
+        .settings-item-actions button { background: transparent; border: none; color: var(--danger); font-size: 18px; cursor: pointer; }
+        .add-activity-row { display: flex; gap: 8px; margin-top: 16px; }
+        .add-activity-row input { flex: 1; background: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-main); padding: 12px; border-radius: 8px; outline: none; }
+        .add-activity-row button { background: var(--primary); border: none; color: #000; padding: 0 16px; border-radius: 8px; font-weight: 600; cursor: pointer; }
 
-        /* Responsive Design */
         @media (max-width: 1024px) {
             .cards-grid { grid-template-columns: 1fr; }
-            .food-table {
-                grid-template-columns: 100px repeat(4, 1fr);
-                gap: 8px;
-            }
+            .food-table { grid-template-columns: 100px repeat(4, 1fr); gap: 8px; }
             .food-header span { font-size: 12px; }
         }
-
+        
         @media (max-width: 768px) {
             .sidebar { display: none; }
-            
-            .main-content {
-                padding: 24px 20px 100px; /* Space for bottom nav */
-            }
-
-            .bottom-nav {
-                display: flex;
-                position: fixed;
-                bottom: 0; left: 0; right: 0;
-                background-color: var(--sidebar-bg);
-                border-top: 1px solid var(--border-color);
-                padding: 12px 24px;
-                justify-content: space-between;
-                align-items: center;
-                z-index: 100;
-            }
-
-            .nav-btn {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                gap: 4px;
-                color: var(--text-muted);
-                text-decoration: none;
-                font-size: 12px;
-            }
-
+            .main-content { padding: 24px 20px 100px; }
+            .bottom-nav { display: flex; position: fixed; bottom: 0; left: 0; right: 0; background-color: var(--sidebar-bg); border-top: 1px solid var(--border-color); padding: 12px 24px; justify-content: space-between; align-items: center; z-index: 100; transition: background-color 0.3s, border-color 0.3s;}
+            .nav-btn { display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--text-muted); text-decoration: none; font-size: 12px; cursor: pointer;}
             .nav-btn i { font-size: 24px; }
             .nav-btn.active { color: var(--primary); }
-
-            .fab-btn {
-                width: 56px; height: 56px;
-                background-color: var(--primary);
-                border-radius: 50%;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                color: #000;
-                font-size: 32px;
-                transform: translateY(-20px);
-                box-shadow: 0 8px 24px var(--primary-glow);
-                cursor: pointer;
-            }
-
-            .food-table {
-                display: flex;
-                flex-direction: column;
-                gap: 16px;
-            }
+            .fab-btn { width: 56px; height: 56px; background-color: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #000; font-size: 32px; transform: translateY(-20px); box-shadow: 0 8px 24px var(--primary-glow); cursor: pointer; }
+            .food-table { display: flex; flex-direction: column; gap: 16px; }
             .food-header { display: none; }
-            
-            .food-row-container {
-                display: flex;
-                flex-direction: column;
-                gap: 8px;
-                background: var(--input-bg);
-                padding: 12px;
-                border-radius: 8px;
-            }
-
+            .food-options { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
             .food-row-title { font-weight: 600; margin-bottom: 4px; }
-            
-            .food-row-options {
-                display: grid;
-                grid-template-columns: repeat(4, 1fr);
-                gap: 8px;
-            }
-            
-            .food-row-options .radio-btn {
-                flex-direction: column;
-                height: auto;
-                padding: 8px 0;
-                gap: 4px;
-                font-size: 12px;
-                color: var(--text-muted);
-            }
-
-            .food-row-options .radio-btn.active { color: #000; }
-            
-            /* Add structure for mobile table layout via JS if needed, but for simplicity we rely on grid adaptation */
+            .radio-btn { flex-direction: column; height: auto; padding: 8px 0; gap: 4px; font-size: 12px; color: var(--text-muted); }
+            .radio-btn.active { color: #000; }
         }
     </style>
 </head>
@@ -671,16 +215,12 @@
 
     <!-- Sidebar Desktop -->
     <aside class="sidebar">
-        <div class="logo">
-            D+ <i class="ri-leaf-fill"></i> Saúde
-        </div>
+        <div class="logo">D+ <i class="ri-leaf-fill"></i> Saúde</div>
         <div class="logo-subtitle">Seu dia, sua evolução</div>
-
         <ul class="nav-menu">
             <li class="nav-item"><a href="#" class="active"><i class="ri-home-5-line"></i> Início</a></li>
-            <li class="nav-item"><a href="#"><i class="ri-calendar-todo-line"></i> Registrar Dia</a></li>
-            <li class="nav-item"><a href="#"><i class="ri-bar-chart-box-line"></i> Relatórios</a></li>
-            <li class="nav-item"><a href="#"><i class="ri-history-line"></i> Histórico</a></li>
+            <li class="nav-item"><a href="#" onclick="openHistoryModal()"><i class="ri-bar-chart-box-line"></i> Relatórios</a></li>
+            <li class="nav-item"><a href="#" onclick="openHistoryModal()"><i class="ri-history-line"></i> Histórico</a></li>
             <li class="nav-item"><a href="#"><i class="ri-checkbox-circle-line"></i> Metas</a></li>
             <li class="nav-item">
                 <a href="#" style="justify-content: space-between;">
@@ -690,9 +230,9 @@
                     <span style="background:var(--primary-dim); color:var(--primary); padding:2px 6px; border-radius:4px; font-size:10px; font-weight:bold;">PRO</span>
                 </a>
             </li>
-            <li class="nav-item"><a href="#"><i class="ri-settings-4-line"></i> Configurações</a></li>
+            <li class="nav-item"><a id="theme-toggle"><i class="ri-contrast-2-line"></i> Alternar Tema</a></li>
+            <li class="nav-item"><a href="#" onclick="openSettingsModal()"><i class="ri-settings-4-line"></i> Configurações</a></li>
         </ul>
-
         <div class="premium-card">
             <i class="ri-vip-diamond-fill premium-icon"></i>
             <h4>D+ Saúde Premium</h4>
@@ -701,10 +241,14 @@
         </div>
     </aside>
 
-    <!-- Main Content -->
     <main class="main-content">
         <div class="top-bar">
-            <button class="notification-btn">
+            <!-- Streak Indicator -->
+            <div class="streak-badge" id="streak-badge">
+                <i class="ri-fire-fill"></i> <span id="streak-count">0</span> dias
+            </div>
+
+            <button class="notification-btn" id="notification-bell" onclick="showNotificationAlert()">
                 <i class="ri-notification-3-line"></i>
             </button>
         </div>
@@ -713,20 +257,19 @@
             <div class="score-info">
                 <h2>Olá! 👋</h2>
                 <p>Pronto para registrar<br>seu dia?</p>
-                <button class="btn-report"><i class="ri-bar-chart-grouped-line"></i> Ver relatório do dia <i class="ri-arrow-right-s-line"></i></button>
+                <button class="btn-report" onclick="showReportModal()"><i class="ri-bar-chart-grouped-line"></i> Ver relatório do dia <i class="ri-arrow-right-s-line"></i></button>
             </div>
-            
             <div class="score-display">
                 <div class="score-circle">
                     <svg viewBox="0 0 100 100">
-                        <circle cx="50" cy="50" r="40" fill="none" stroke="#1a2530" stroke-width="10" />
-                        <circle cx="50" cy="50" r="40" fill="none" stroke="var(--primary)" stroke-width="10" stroke-dasharray="251.2" stroke-dashoffset="75.36" stroke-linecap="round" />
-                        <text x="50" y="50" alignment-baseline="middle" text-anchor="middle" fill="#fff" font-size="32" font-weight="700">7</text>
+                        <circle cx="50" cy="50" r="40" fill="none" stroke="var(--border-color)" stroke-width="10" />
+                        <circle id="score-ring" cx="50" cy="50" r="40" fill="none" stroke="var(--primary)" stroke-width="10" stroke-dasharray="251.2" stroke-dashoffset="251.2" stroke-linecap="round" style="transition: stroke-dashoffset 1s ease-out;" />
+                        <text id="score-text-val" x="50" y="50" alignment-baseline="middle" text-anchor="middle" fill="var(--text-main)" font-size="32" font-weight="700">-</text>
                     </svg>
                 </div>
                 <div class="score-text">
                     <span>Score de hoje</span>
-                    <span>Bom</span>
+                    <span id="score-label">Registre</span>
                 </div>
             </div>
         </div>
@@ -737,65 +280,61 @@
                 <p>Como foi o seu dia? Preencha os dados abaixo:</p>
             </div>
             <div class="date-picker">
-                01/05/2026 <i class="ri-calendar-line"></i>
+                <input type="date" id="date-picker-input">
+                <i class="ri-calendar-line"></i>
             </div>
         </div>
 
-        <!-- Alimentação -->
         <div class="card">
             <h3 class="section-title"><i class="ri-restaurant-line"></i> Alimentação</h3>
-            
             <div class="food-table">
                 <div class="food-header">
-                    <span>Refeição</span>
-                    <span>Segui a dieta</span>
-                    <span>Normal</span>
-                    <span>Extrapolei</span>
-                    <span>Pulei</span>
+                    <span>Refeição</span><span>Segui a dieta</span><span>Normal</span><span>Extrapolei</span><span>Pulei</span>
                 </div>
 
                 <div class="food-row-title">Café da manhã</div>
-                <button class="radio-btn active"><i class="ri-check-line"></i></button>
-                <button class="radio-btn"><div class="radio-circle"></div></button>
-                <button class="radio-btn"><div class="radio-circle"></div></button>
-                <button class="radio-btn"><div class="radio-circle"></div></button>
+                <div class="food-options" style="display: contents" data-meal="Café da manhã">
+                    <button class="radio-btn" data-val="Segui"><div class="radio-circle"></div></button>
+                    <button class="radio-btn" data-val="Normal"><div class="radio-circle"></div></button>
+                    <button class="radio-btn" data-val="Extrapolei"><div class="radio-circle"></div></button>
+                    <button class="radio-btn" data-val="Pulei"><div class="radio-circle"></div></button>
+                </div>
 
                 <div class="food-row-title">Almoço</div>
-                <button class="radio-btn active"><i class="ri-check-line"></i></button>
-                <button class="radio-btn"><div class="radio-circle"></div></button>
-                <button class="radio-btn"><div class="radio-circle"></div></button>
-                <button class="radio-btn"><div class="radio-circle"></div></button>
+                <div class="food-options" style="display: contents" data-meal="Almoço">
+                    <button class="radio-btn" data-val="Segui"><div class="radio-circle"></div></button>
+                    <button class="radio-btn" data-val="Normal"><div class="radio-circle"></div></button>
+                    <button class="radio-btn" data-val="Extrapolei"><div class="radio-circle"></div></button>
+                    <button class="radio-btn" data-val="Pulei"><div class="radio-circle"></div></button>
+                </div>
 
                 <div class="food-row-title">Lanche</div>
-                <button class="radio-btn active"><i class="ri-check-line"></i></button>
-                <button class="radio-btn"><div class="radio-circle"></div></button>
-                <button class="radio-btn"><div class="radio-circle"></div></button>
-                <button class="radio-btn"><div class="radio-circle"></div></button>
+                <div class="food-options" style="display: contents" data-meal="Lanche">
+                    <button class="radio-btn" data-val="Segui"><div class="radio-circle"></div></button>
+                    <button class="radio-btn" data-val="Normal"><div class="radio-circle"></div></button>
+                    <button class="radio-btn" data-val="Extrapolei"><div class="radio-circle"></div></button>
+                    <button class="radio-btn" data-val="Pulei"><div class="radio-circle"></div></button>
+                </div>
 
                 <div class="food-row-title">Janta</div>
-                <button class="radio-btn active"><i class="ri-check-line"></i></button>
-                <button class="radio-btn"><div class="radio-circle"></div></button>
-                <button class="radio-btn"><div class="radio-circle"></div></button>
-                <button class="radio-btn"><div class="radio-circle"></div></button>
+                <div class="food-options" style="display: contents" data-meal="Janta">
+                    <button class="radio-btn" data-val="Segui"><div class="radio-circle"></div></button>
+                    <button class="radio-btn" data-val="Normal"><div class="radio-circle"></div></button>
+                    <button class="radio-btn" data-val="Extrapolei"><div class="radio-circle"></div></button>
+                    <button class="radio-btn" data-val="Pulei"><div class="radio-circle"></div></button>
+                </div>
             </div>
         </div>
 
-        <!-- Atividades -->
         <div class="card">
             <h3 class="section-title"><i class="ri-run-line"></i> Atividades</h3>
             <p class="section-desc">Quais atividades você realizou hoje?</p>
-            
-            <div class="chips-group">
-                <button class="chip active">Caminhada</button>
-                <button class="chip">Corrida</button>
-                <button class="chip active">Academia</button>
-                <button class="chip active">Trabalho</button>
-                <button class="chip">Estudos</button>
+            <div class="chips-group" id="atividades-group">
+                <!-- Injected via JS based on settings -->
             </div>
         </div>
 
         <div class="cards-grid">
-            <!-- Água -->
             <div class="card" style="margin-bottom:0;">
                 <div class="flex-between">
                     <div>
@@ -804,114 +343,542 @@
                     </div>
                     <span class="meta-badge">Meta: 2L</span>
                 </div>
-                
-                <div class="chips-group" style="gap:8px;">
-                    <button class="chip" style="padding:10px 14px;">1</button>
-                    <button class="chip active" style="padding:10px 14px;">1,5</button>
-                    <button class="chip" style="padding:10px 14px;">2</button>
-                    <button class="chip" style="padding:10px 14px;">3</button>
-                    <button class="chip" style="padding:10px 14px;">4+</button>
+                <div class="chips-group" id="agua-group" style="gap:8px;">
+                    <button class="chip" data-val="1">1</button>
+                    <button class="chip" data-val="1.5">1,5</button>
+                    <button class="chip" data-val="2">2</button>
+                    <button class="chip" data-val="3">3</button>
+                    <button class="chip" data-val="4">4+</button>
                 </div>
             </div>
 
-            <!-- Tempo em pé -->
             <div class="card" style="margin-bottom:0;">
                 <h3 class="section-title" style="margin-bottom:4px;"><i class="ri-walk-line" style="color:var(--primary);"></i> Tempo em pé</h3>
                 <p class="section-desc" style="margin-bottom:16px;">Quantas horas você ficou em pé hoje?</p>
-                
                 <div class="input-group">
-                    <input type="text" value="4,2">
+                    <input type="number" id="tempo-pe-input" step="0.1" placeholder="Ex: 4.5">
                     <span>horas</span>
                 </div>
             </div>
 
-            <!-- Tempo de tela -->
             <div class="card" style="margin-bottom:0;">
                 <h3 class="section-title" style="margin-bottom:4px;"><i class="ri-smartphone-line" style="color:var(--primary);"></i> Tempo de tela</h3>
                 <p class="section-desc" style="margin-bottom:16px;">Quanto tempo de tela hoje?</p>
-                
-                <div class="chips-group" style="display:flex; flex-wrap:nowrap;">
-                    <div class="chip-card active">
-                        <span class="title">Baixo</span>
-                        <span class="subtitle">Até 2h</span>
+                <div class="chips-group" id="tela-group" style="display:flex; flex-wrap:nowrap;">
+                    <div class="chip-card" data-val="Baixo">
+                        <span class="title">Baixo</span><span class="subtitle">Até 2h</span>
                     </div>
-                    <div class="chip-card">
-                        <span class="title">Médio</span>
-                        <span class="subtitle">2h - 4h</span>
+                    <div class="chip-card" data-val="Médio">
+                        <span class="title">Médio</span><span class="subtitle">2h - 4h</span>
                     </div>
-                    <div class="chip-card">
-                        <span class="title">Alto</span>
-                        <span class="subtitle">+ de 4h</span>
+                    <div class="chip-card" data-val="Alto">
+                        <span class="title">Alto</span><span class="subtitle">+ de 4h</span>
                     </div>
                 </div>
             </div>
 
-            <!-- Sono -->
             <div class="card" style="margin-bottom:0;">
                 <h3 class="section-title" style="margin-bottom:4px;"><i class="ri-moon-clear-line" style="color:var(--primary);"></i> Sono</h3>
                 <p class="section-desc" style="margin-bottom:16px;">Como foi seu sono?</p>
-                
-                <div class="chips-group" style="display:flex; flex-wrap:nowrap;">
-                    <button class="chip" style="flex:1; padding:12px 0; text-align:center;">Ruim</button>
-                    <button class="chip" style="flex:1; padding:12px 0; text-align:center;">Regular</button>
-                    <button class="chip active" style="flex:1; padding:12px 0; text-align:center;">Bom</button>
-                    <button class="chip" style="flex:1; padding:12px 0; text-align:center;">Excelente</button>
+                <div class="chips-group" id="sono-group" style="display:flex; flex-wrap:nowrap;">
+                    <button class="chip" data-val="Ruim" style="flex:1; padding:12px 0; text-align:center;">Ruim</button>
+                    <button class="chip" data-val="Regular" style="flex:1; padding:12px 0; text-align:center;">Regular</button>
+                    <button class="chip" data-val="Bom" style="flex:1; padding:12px 0; text-align:center;">Bom</button>
+                    <button class="chip" data-val="Excelente" style="flex:1; padding:12px 0; text-align:center;">Excelente</button>
                 </div>
             </div>
         </div>
 
         <div style="margin-top: 24px;"></div>
-
-        <button class="btn-save">
-            Salvar registro <i class="ri-checkbox-circle-line"></i>
-        </button>
-
-        <div class="footer-text">
-            <i class="ri-lock-line"></i> Seus dados são privados e seguros
-        </div>
-
+        <button class="btn-save" id="btn-save">Salvar registro <i class="ri-checkbox-circle-line"></i></button>
+        <div class="footer-text"><i class="ri-lock-line"></i> Seus dados são privados e seguros</div>
     </main>
 
     <!-- Mobile Bottom Nav -->
     <nav class="bottom-nav">
-        <a href="#" class="nav-btn active"><i class="ri-home-5-fill"></i> Início</a>
-        <a href="#" class="nav-btn"><i class="ri-focus-2-line"></i> Metas</a>
-        <div class="fab-btn"><i class="ri-add-line"></i></div>
-        <a href="#" class="nav-btn"><i class="ri-bar-chart-grouped-line"></i> Relatórios</a>
-        <a href="#" class="nav-btn"><i class="ri-user-line"></i> Perfil</a>
+        <a class="nav-btn active"><i class="ri-home-5-fill"></i> Início</a>
+        <a class="nav-btn" onclick="openSettingsModal()"><i class="ri-settings-4-line"></i> Configurações</a>
+        <div class="fab-btn" onclick="document.querySelector('.main-content').scrollTop = 0;"><i class="ri-add-line"></i></div>
+        <a class="nav-btn" onclick="openHistoryModal()"><i class="ri-bar-chart-grouped-line"></i> Relatórios</a>
+        <a class="nav-btn"><i class="ri-user-line"></i> Perfil</a>
     </nav>
 
+    <!-- Modal Report AI -->
+    <div id="report-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="ri-robot-2-line" style="color:var(--primary)"></i> Análise da IA</h3>
+                <button class="close-modal" onclick="closeModals()"><i class="ri-close-line"></i></button>
+            </div>
+            <div class="modal-body" id="ai-report-text">
+                <!-- Text generated by JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal History (Relatórios) -->
+    <div id="history-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="ri-bar-chart-grouped-line" style="color:var(--primary)"></i> Meu Desempenho</h3>
+                <button class="close-modal" onclick="closeModals()"><i class="ri-close-line"></i></button>
+            </div>
+            <div class="modal-body">
+                <p>Evolução do seu Score nos últimos 7 dias:</p>
+                <div class="chart-container" id="chart-container">
+                    <!-- Bars injected by JS -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Configurações -->
+    <div id="settings-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="ri-settings-4-line" style="color:var(--primary)"></i> Configurações</h3>
+                <button class="close-modal" onclick="closeModals()"><i class="ri-close-line"></i></button>
+            </div>
+            <div class="modal-body">
+                <p>Gerencie suas atividades personalizadas:</p>
+                <div class="settings-list" id="settings-activities-list">
+                    <!-- Activities list -->
+                </div>
+                <div class="add-activity-row">
+                    <input type="text" id="new-activity-input" placeholder="Ex: Leitura, Yoga">
+                    <button onclick="addActivity()">Adicionar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // Simple interactivity
-        document.querySelectorAll('.chip, .chip-card').forEach(btn => {
-            btn.addEventListener('click', function() {
-                // Determine if it's a multi-select (Atividades) or single select
-                if(this.closest('.card').querySelector('h3').innerText.includes('Atividades')) {
-                    this.classList.toggle('active');
-                } else {
-                    const siblings = this.parentElement.querySelectorAll('.chip, .chip-card');
-                    siblings.forEach(s => s.classList.remove('active'));
-                    this.classList.add('active');
-                }
-            });
+        // --- Core State ---
+        const todayStr = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+        let currentSelectedDate = todayStr;
+        let defaultActivities = ['Caminhada', 'Corrida', 'Academia', 'Trabalho', 'Estudos'];
+        
+        // Setup Date Picker
+        const dateInput = document.getElementById('date-picker-input');
+        dateInput.value = currentSelectedDate;
+        dateInput.max = currentSelectedDate; // prevent future dates
+
+        // --- Theme Logic ---
+        const htmlEl = document.documentElement;
+        if(localStorage.getItem('theme') === 'light') htmlEl.setAttribute('data-theme', 'light');
+        document.getElementById('theme-toggle').addEventListener('click', (e) => {
+            e.preventDefault();
+            const currentTheme = htmlEl.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            htmlEl.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
         });
 
-        // Setup radio buttons in food table
-        const foods = ['Café da manhã', 'Almoço', 'Lanche', 'Janta'];
-        const radioBtns = document.querySelectorAll('.food-table .radio-btn');
-        for(let i=0; i<foods.length; i++) {
-            const rowBtns = [radioBtns[i*4], radioBtns[i*4+1], radioBtns[i*4+2], radioBtns[i*4+3]];
-            rowBtns.forEach(btn => {
-                btn.addEventListener('click', () => {
-                    rowBtns.forEach(b => {
-                        b.classList.remove('active');
-                        b.innerHTML = '<div class="radio-circle"></div>';
+        // --- Init Function ---
+        function init() {
+            renderActivitiesChips();
+            setupInteractivity();
+            loadDataForDate(currentSelectedDate);
+            updateStreakUI();
+            checkNotification();
+        }
+
+        // --- Render Activities ---
+        function getActivities() {
+            return JSON.parse(localStorage.getItem('dmais_activities')) || defaultActivities;
+        }
+
+        function renderActivitiesChips() {
+            const container = document.getElementById('atividades-group');
+            container.innerHTML = '';
+            const activities = getActivities();
+            activities.forEach(act => {
+                container.innerHTML += `<button class="chip" data-val="${act}">${act}</button>`;
+            });
+            // Re-bind listeners for new chips
+            setupChipsInteractivity(container.querySelectorAll('.chip'));
+        }
+
+        // --- Interactivity Setup ---
+        function setupInteractivity() {
+            // Setup single/multi select chips
+            setupChipsInteractivity(document.querySelectorAll('.card:not(:nth-child(5)) .chip, .chip-card'));
+            
+            // Food Table Radios
+            const foodOptions = document.querySelectorAll('.food-options');
+            foodOptions.forEach(opt => {
+                const btns = opt.querySelectorAll('.radio-btn');
+                btns.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        btns.forEach(b => {
+                            b.classList.remove('active');
+                            b.innerHTML = '<div class="radio-circle"></div>';
+                        });
+                        btn.classList.add('active');
+                        btn.innerHTML = '<i class="ri-check-line"></i>';
                     });
-                    btn.classList.add('active');
-                    btn.innerHTML = '<i class="ri-check-line"></i>';
+                });
+            });
+
+            // Date change listener
+            dateInput.addEventListener('change', (e) => {
+                currentSelectedDate = e.target.value;
+                loadDataForDate(currentSelectedDate);
+            });
+        }
+
+        function setupChipsInteractivity(elements) {
+            elements.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const cardTitle = this.closest('.card').querySelector('h3').innerText;
+                    if(cardTitle.includes('Atividades')) {
+                        // Multi-select
+                        this.classList.toggle('active');
+                    } else {
+                        // Single-select
+                        const siblings = this.parentElement.querySelectorAll('.chip, .chip-card');
+                        siblings.forEach(s => s.classList.remove('active'));
+                        this.classList.add('active');
+                    }
                 });
             });
         }
+
+        // --- Load / Clear Data ---
+        function clearForm() {
+            // Reset food
+            document.querySelectorAll('.food-options').forEach(opt => {
+                opt.querySelectorAll('.radio-btn').forEach(b => {
+                    b.classList.remove('active');
+                    b.innerHTML = '<div class="radio-circle"></div>';
+                });
+            });
+            // Reset chips
+            document.querySelectorAll('.chip, .chip-card').forEach(c => c.classList.remove('active'));
+            // Reset input
+            document.getElementById('tempo-pe-input').value = '';
+            // Reset score circle
+            updateScoreCircle('-', 'Registre');
+        }
+
+        function loadDataForDate(dateStr) {
+            clearForm();
+            const saved = localStorage.getItem('dmais_saude_record_' + dateStr);
+            if(saved) {
+                const data = JSON.parse(saved);
+                
+                // Restore Food
+                if(data.food) {
+                    for(const [meal, val] of Object.entries(data.food)) {
+                        const optGroup = document.querySelector(`.food-options[data-meal="${meal}"]`);
+                        if(optGroup) {
+                            const btn = optGroup.querySelector(`.radio-btn[data-val="${val}"]`);
+                            if(btn) {
+                                btn.classList.add('active');
+                                btn.innerHTML = '<i class="ri-check-line"></i>';
+                            }
+                        }
+                    }
+                }
+                
+                // Restore Activities
+                if(data.activities) {
+                    data.activities.forEach(act => {
+                        const chip = document.querySelector(`#atividades-group .chip[data-val="${act}"]`);
+                        if(chip) chip.classList.add('active');
+                    });
+                }
+                
+                // Restore Others
+                if(data.water) {
+                    const chip = document.querySelector(`#agua-group .chip[data-val="${data.water}"]`);
+                    if(chip) chip.classList.add('active');
+                }
+                if(data.standing) document.getElementById('tempo-pe-input').value = data.standing;
+                if(data.screen) {
+                    const chip = document.querySelector(`#tela-group .chip-card[data-val="${data.screen}"]`);
+                    if(chip) chip.classList.add('active');
+                }
+                if(data.sleep) {
+                    const chip = document.querySelector(`#sono-group .chip[data-val="${data.sleep}"]`);
+                    if(chip) chip.classList.add('active');
+                }
+
+                // Restore Score UI
+                setTimeout(() => updateScoreCircle(data.score, data.label), 100);
+            }
+        }
+
+        // --- Save & Calculate Logic ---
+        function gatherFormData() {
+            let data = { food: {}, activities: [], water: null, standing: null, screen: null, sleep: null };
+            
+            document.querySelectorAll('.food-options').forEach(opt => {
+                const meal = opt.getAttribute('data-meal');
+                const btn = opt.querySelector('.radio-btn.active');
+                if(btn) data.food[meal] = btn.getAttribute('data-val');
+            });
+            
+            document.querySelectorAll('#atividades-group .chip.active').forEach(chip => {
+                data.activities.push(chip.getAttribute('data-val'));
+            });
+
+            const waterBtn = document.querySelector('#agua-group .chip.active');
+            if(waterBtn) data.water = waterBtn.getAttribute('data-val');
+
+            data.standing = document.getElementById('tempo-pe-input').value;
+
+            const screenBtn = document.querySelector('#tela-group .chip-card.active');
+            if(screenBtn) data.screen = screenBtn.getAttribute('data-val');
+
+            const sleepBtn = document.querySelector('#sono-group .chip.active');
+            if(sleepBtn) data.sleep = sleepBtn.getAttribute('data-val');
+
+            return data;
+        }
+
+        function calculateScoreAndReport(formData) {
+            let score = 0, praises = [], warnings = [];
+            let dietFollowed = 0, dietFailed = 0;
+
+            // Food
+            for(const meal in formData.food) {
+                const val = formData.food[meal];
+                if(val === 'Segui') { score += 2; dietFollowed++; }
+                else if(val === 'Extrapolei' || val === 'Pulei') { score -= 1; dietFailed++; }
+            }
+            if(dietFollowed >= 3) praises.push('Alimentação excelente, manter a dieta é fundamental!');
+            else if(dietFailed >= 2) warnings.push('Você extrapolou/pulou refeições. Tente manter a constância.');
+
+            // Activities
+            score += formData.activities.length; 
+            if(formData.activities.length >= 2) praises.push('Ótimo trabalho se mantendo ativo!');
+            else if(formData.activities.length === 0) warnings.push('Tente incluir alguma atividade no seu dia.');
+
+            // Water
+            let waterVal = parseFloat(formData.water) || 0;
+            if(waterVal >= 2) { score += 2; praises.push('Hidratação em dia, meta alcançada!'); }
+            else if(waterVal > 0) warnings.push('Tente beber mais água para bater a meta de 2L.');
+
+            // Standing
+            let standingVal = parseFloat(formData.standing) || 0;
+            if(standingVal >= 4) { score += 1; praises.push('Bom tempo em pé, isso ajuda na circulação.'); }
+
+            // Screen
+            if(formData.screen === 'Baixo') { score += 2; praises.push('Excelente controle de tempo de tela!'); }
+            else if(formData.screen === 'Alto') { score -= 1; warnings.push('Tempo de tela muito alto. Descanse os olhos.'); }
+
+            // Sleep
+            if(formData.sleep === 'Excelente' || formData.sleep === 'Bom') { score += 3; praises.push('Bom sono! O descanso é chave para a evolução.'); }
+            else if(formData.sleep === 'Ruim') { score -= 2; warnings.push('Sono ruim. Crie um ambiente relaxante antes de dormir.'); }
+
+            // Math
+            let finalScore = Math.min(10, Math.max(1, Math.round((score / 15) * 10)));
+            if(isNaN(finalScore)) finalScore = 5;
+
+            let label = "Normal";
+            if(finalScore >= 8) label = "Excelente";
+            else if(finalScore >= 6) label = "Bom";
+            else if(finalScore <= 4) label = "Atenção";
+
+            // HTML Generator
+            let htmlText = `<p>Analisando seu dia, seu score foi <strong style="color:var(--primary)">${finalScore}/10</strong> (${label}).</p>`;
+            if(praises.length > 0) htmlText += `<p><span class="praise">Positivo:</span><br>` + praises.map(p => `• ${p}`).join('<br>') + `</p>`;
+            if(warnings.length > 0) htmlText += `<p><span class="warning">A Melhorar:</span><br>` + warnings.map(w => `• ${w}`).join('<br>') + `</p>`;
+            if(finalScore >= 7) htmlText += `<p><strong>A IA diz:</strong> Continue assim, o corpo agradece!</p>`;
+            else htmlText += `<p><strong>A IA diz:</strong> Alguns deslizes hoje, mas o importante é a consistência. Foque amanhã!</p>`;
+
+            return { score: finalScore, label: label, reportHtml: htmlText };
+        }
+
+        document.getElementById('btn-save').addEventListener('click', () => {
+            const formData = gatherFormData();
+            const result = calculateScoreAndReport(formData);
+            
+            // Save Object
+            localStorage.setItem('dmais_saude_record_' + currentSelectedDate, JSON.stringify({
+                ...formData,
+                score: result.score,
+                label: result.label,
+                report: result.reportHtml
+            }));
+
+            updateScoreCircle(result.score, result.label);
+            updateStreakUI();
+            document.getElementById('notification-bell').classList.remove('notify-pulse'); // remove alert if any
+            
+            // Confetti if score >= 8
+            if(result.score >= 8) {
+                confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, colors: ['#15f56b', '#ffffff', '#0ea5e9'] });
+            }
+            
+            document.getElementById('ai-report-text').innerHTML = result.reportHtml;
+            document.getElementById('report-modal').classList.add('active');
+        });
+
+        function updateScoreCircle(score, label) {
+            document.getElementById('score-text-val').textContent = score;
+            document.getElementById('score-label').textContent = label;
+            const ring = document.getElementById('score-ring');
+            if(score === '-') {
+                ring.style.strokeDashoffset = 251.2;
+            } else {
+                const offset = 251.2 - (251.2 * (score / 10));
+                ring.style.strokeDashoffset = offset;
+            }
+        }
+
+        // --- Streak Calculation ---
+        function calculateStreak() {
+            let streak = 0;
+            let d = new Date();
+            const tKey = d.toISOString().split('T')[0];
+            
+            // Allow skipping today. If today is empty, start checking from yesterday.
+            if(!localStorage.getItem('dmais_saude_record_' + tKey)) {
+                d.setDate(d.getDate() - 1);
+            }
+
+            while(true) {
+                let key = d.toISOString().split('T')[0];
+                if(localStorage.getItem('dmais_saude_record_' + key)) {
+                    streak++;
+                    d.setDate(d.getDate() - 1);
+                } else {
+                    break;
+                }
+            }
+            return streak;
+        }
+
+        function updateStreakUI() {
+            const streak = calculateStreak();
+            const badge = document.getElementById('streak-badge');
+            if(streak > 0) {
+                badge.style.display = 'flex';
+                document.getElementById('streak-count').textContent = streak;
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+
+        // --- Smart Notification ---
+        function checkNotification() {
+            const hour = new Date().getHours();
+            if(hour >= 20 && !localStorage.getItem('dmais_saude_record_' + todayStr)) {
+                document.getElementById('notification-bell').classList.add('notify-pulse');
+            }
+        }
+
+        function showNotificationAlert() {
+            const bell = document.getElementById('notification-bell');
+            if(bell.classList.contains('notify-pulse')) {
+                alert("Ei! Já é noite e você ainda não registrou seus hábitos de hoje. Cuide da sua saúde!");
+                bell.classList.remove('notify-pulse');
+            } else {
+                alert("Tudo certo por aqui! Sem novas notificações.");
+            }
+        }
+
+        // --- Modals Management ---
+        function showReportModal() {
+            const saved = localStorage.getItem('dmais_saude_record_' + currentSelectedDate);
+            if(saved) {
+                document.getElementById('ai-report-text').innerHTML = JSON.parse(saved).report;
+                document.getElementById('report-modal').classList.add('active');
+            } else {
+                alert(`Nenhum registro encontrado para ${currentSelectedDate.split('-').reverse().join('/')}.`);
+            }
+        }
+
+        function openHistoryModal() {
+            const chartContainer = document.getElementById('chart-container');
+            chartContainer.innerHTML = '';
+            
+            let html = '';
+            let d = new Date();
+            // Get last 7 days (reading backwards)
+            for(let i=6; i>=0; i--) {
+                let checkDate = new Date();
+                checkDate.setDate(checkDate.getDate() - i);
+                let key = checkDate.toISOString().split('T')[0];
+                let label = checkDate.toLocaleDateString('pt-BR', {weekday: 'short'}).replace('.','');
+                
+                let saved = localStorage.getItem('dmais_saude_record_' + key);
+                let score = saved ? JSON.parse(saved).score : 0;
+                let height = score * 10; // 0 to 100%
+                
+                html += `
+                    <div class="chart-bar-wrapper">
+                        <span class="chart-score">${score > 0 ? score : ''}</span>
+                        <div class="chart-bar" style="height: ${height}%"></div>
+                        <span class="chart-label">${label}</span>
+                    </div>
+                `;
+            }
+            chartContainer.innerHTML = html;
+            document.getElementById('history-modal').classList.add('active');
+        }
+
+        function openSettingsModal() {
+            renderSettingsList();
+            document.getElementById('settings-modal').classList.add('active');
+        }
+
+        function renderSettingsList() {
+            const list = document.getElementById('settings-activities-list');
+            list.innerHTML = '';
+            const acts = getActivities();
+            acts.forEach((act, index) => {
+                list.innerHTML += `
+                    <div class="settings-item">
+                        <span>${act}</span>
+                        <div class="settings-item-actions">
+                            <button onclick="removeActivity(${index})"><i class="ri-delete-bin-line"></i></button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function addActivity() {
+            const input = document.getElementById('new-activity-input');
+            const val = input.value.trim();
+            if(val) {
+                let acts = getActivities();
+                acts.push(val);
+                localStorage.setItem('dmais_activities', JSON.stringify(acts));
+                input.value = '';
+                renderSettingsList();
+                renderActivitiesChips();
+                // Reload state to not lose selection if user was mid-editing
+                loadDataForDate(currentSelectedDate);
+            }
+        }
+
+        window.removeActivity = function(index) {
+            let acts = getActivities();
+            acts.splice(index, 1);
+            localStorage.setItem('dmais_activities', JSON.stringify(acts));
+            renderSettingsList();
+            renderActivitiesChips();
+            loadDataForDate(currentSelectedDate);
+        }
+
+        function closeModals() {
+            document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active'));
+        }
+
+        // Close when clicking outside content
+        document.querySelectorAll('.modal-overlay').forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if(e.target === modal) modal.classList.remove('active');
+            });
+        });
+
+        // Run Initialization
+        window.addEventListener('DOMContentLoaded', init);
+
     </script>
 </body>
 </html>
