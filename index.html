@@ -8,6 +8,14 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet">
+    
+    <!-- PWA Setup -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0b1016">
+    <link rel="icon" type="image/svg+xml" href="icon.svg">
+    <link rel="apple-touch-icon" href="icon.svg">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    
     <!-- Confetti Library -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
@@ -218,8 +226,8 @@
         <div class="logo-subtitle">Seu dia, sua evolução</div>
         <ul class="nav-menu">
             <li class="nav-item"><a href="#" class="active"><i class="ri-home-5-line"></i> Início</a></li>
-            <li class="nav-item"><a href="#" onclick="openHistoryModal()"><i class="ri-bar-chart-box-line"></i> Relatórios</a></li>
-            <li class="nav-item"><a href="#" onclick="openHistoryModal()"><i class="ri-history-line"></i> Histórico</a></li>
+            <li class="nav-item"><a href="#" onclick="showReportModal()"><i class="ri-file-text-line"></i> Relatório Diário</a></li>
+            <li class="nav-item"><a href="#" onclick="openHistoryModal()"><i class="ri-bar-chart-box-line"></i> Histórico</a></li>
             <li class="nav-item"><a href="#"><i class="ri-checkbox-circle-line"></i> Metas</a></li>
             <li class="nav-item">
                 <a href="#" style="justify-content: space-between;">
@@ -420,6 +428,15 @@
                 <div class="add-activity-row" style="margin-bottom:0;">
                     <input type="text" id="new-activity-input" placeholder="Ex: Leitura, Yoga">
                     <button onclick="addActivity()">Adicionar</button>
+                </div>
+
+                <div style="margin-top:24px; border-top: 1px solid var(--border-color); padding-top: 24px;">
+                    <h4 style="color:var(--primary); font-size:16px; margin-bottom:12px;"><i class="ri-database-2-line"></i> Backup de Segurança</h4>
+                    <p style="font-size:13px; color:var(--text-muted); margin-bottom:12px;">Gere um código com seu histórico para salvar onde quiser.</p>
+                    <div style="display:flex; gap:12px;">
+                        <button onclick="exportBackup()" style="flex:1; background:var(--input-bg); border:1px solid var(--border-color); color:var(--text-main); padding:10px; border-radius:8px; cursor:pointer; font-weight:600; transition:background 0.2s;" onmouseover="this.style.background='var(--card-hover)'" onmouseout="this.style.background='var(--input-bg)'"><i class="ri-upload-cloud-2-line"></i> Copiar Backup</button>
+                        <button onclick="importBackup()" style="flex:1; background:var(--input-bg); border:1px solid var(--border-color); color:var(--text-main); padding:10px; border-radius:8px; cursor:pointer; font-weight:600; transition:background 0.2s;" onmouseover="this.style.background='var(--card-hover)'" onmouseout="this.style.background='var(--input-bg)'"><i class="ri-download-cloud-2-line"></i> Restaurar</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -888,9 +905,62 @@
             modal.addEventListener('click', (e) => { if(e.target === modal) modal.classList.remove('active'); });
         });
 
+        // --- Backup & Restore ---
+        function exportBackup() {
+            let backupData = {};
+            for (let i = 0; i < localStorage.length; i++) {
+                let key = localStorage.key(i);
+                if (key.startsWith('dmais_')) {
+                    backupData[key] = localStorage.getItem(key);
+                }
+            }
+            const backupString = btoa(encodeURIComponent(JSON.stringify(backupData)));
+            
+            // Try clipboard API, fallback to prompt
+            if(navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(backupString).then(() => {
+                    alert("✅ Código de backup copiado para sua área de transferência! Cole em um lugar seguro (ex: Bloco de Notas ou WhatsApp).");
+                }).catch(err => {
+                    prompt("Copie seu código de backup abaixo:", backupString);
+                });
+            } else {
+                prompt("Copie seu código de backup abaixo:", backupString);
+            }
+        }
+
+        function importBackup() {
+            const input = prompt("Cole o código do seu backup abaixo para restaurar seus dados.\n\n⚠️ Atenção: isso substituirá todo o seu histórico atual.");
+            if (input) {
+                try {
+                    const backupData = JSON.parse(decodeURIComponent(atob(input)));
+                    let hasData = false;
+                    for (const key in backupData) {
+                        if (key.startsWith('dmais_')) {
+                            localStorage.setItem(key, backupData[key]);
+                            hasData = true;
+                        }
+                    }
+                    if(hasData) {
+                        alert("✅ Backup restaurado com sucesso! A página será recarregada.");
+                        location.reload();
+                    } else {
+                        alert("❌ Nenhum dado válido encontrado nesse código.");
+                    }
+                } catch (e) {
+                    alert("❌ Código de backup inválido ou corrompido.");
+                }
+            }
+        }
+
         // Run Initialization
         window.addEventListener('DOMContentLoaded', init);
 
+        // --- PWA Service Worker ---
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js');
+            });
+        }
     </script>
 </body>
 </html>
