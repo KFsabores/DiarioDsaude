@@ -9,14 +9,12 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet">
     
-    <!-- PWA Setup -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0b1016">
     <link rel="icon" type="image/png" href="icon.png">
     <link rel="apple-touch-icon" href="icon.png">
     <meta name="apple-mobile-web-app-capable" content="yes">
     
-    <!-- Confetti Library -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         :root {
@@ -129,9 +127,13 @@
         .food-header span { color: var(--text-muted); font-size: 14px; padding-bottom: 12px; text-align: center; }
         .food-header span:first-child { text-align: left; }
         .food-row-title { font-size: 14px; color: var(--text-main); }
-        .radio-btn { background: var(--input-bg); border: 1px solid transparent; height: 44px; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; color: var(--text-main); }
+        
+        /* CORREÇÃO: Radio btn agora aceita texto ao lado do círculo */
+        .radio-btn { background: var(--input-bg); border: 1px solid transparent; height: 44px; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; color: var(--text-main); gap: 8px; font-size: 12px; }
+        .radio-btn span { display: none; } /* Esconde por padrão no desktop para manter a tabela limpa */
+        
         .radio-btn:hover { background: var(--card-hover); }
-        .radio-circle { width: 18px; height: 18px; border-radius: 50%; border: 1.5px solid var(--text-muted); }
+        .radio-circle { width: 18px; height: 18px; border-radius: 50%; border: 1.5px solid var(--text-muted); flex-shrink: 0; }
         .radio-btn.active { background: var(--primary); color: #000; }
         .radio-btn.active .ri-check-line { font-size: 20px; font-weight: bold; }
         
@@ -209,18 +211,20 @@
             .nav-btn i { font-size: 24px; }
             .nav-btn.active { color: var(--primary); }
             .fab-btn { width: 56px; height: 56px; background-color: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #000; font-size: 32px; transform: translateY(-20px); box-shadow: 0 8px 24px var(--primary-glow); cursor: pointer; }
+            
+            /* Ajustes na tabela mobile */
             .food-table { display: flex; flex-direction: column; gap: 16px; }
             .food-header { display: none; }
-            .food-options { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-            .food-row-title { font-weight: 600; margin-bottom: 4px; }
-            .radio-btn { flex-direction: column; height: auto; padding: 8px 0; gap: 4px; font-size: 12px; color: var(--text-muted); }
+            .food-options { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; width: 100%; }
+            .food-row-title { font-weight: 600; margin-bottom: 4px; border-bottom: 1px solid var(--border-color); padding-bottom: 4px; width: 100%; }
+            .radio-btn { flex-direction: row; height: auto; padding: 10px; gap: 8px; font-size: 13px; justify-content: flex-start; }
+            .radio-btn span { display: block; } /* Mostra o texto no mobile */
             .radio-btn.active { color: #000; }
         }
     </style>
 </head>
 <body>
 
-    <!-- Sidebar Desktop -->
     <aside class="sidebar">
         <div class="logo">D+ <i class="ri-leaf-fill"></i> Saúde</div>
         <div class="logo-subtitle">Seu dia, sua evolução</div>
@@ -298,16 +302,14 @@
                 </div>
             </div>
             <div class="food-table" id="food-table-container">
-                <!-- Injected via JS -->
-            </div>
+                </div>
         </div>
 
         <div class="card">
             <h3 class="section-title"><i class="ri-run-line"></i> Atividades</h3>
             <p class="section-desc">Quais atividades você realizou hoje?</p>
             <div class="chips-group" id="atividades-group">
-                <!-- Injected via JS -->
-            </div>
+                </div>
             <div id="activity-metrics-container" style="display: flex; flex-direction: column; gap: 12px; margin-top: 16px;"></div>
         </div>
 
@@ -368,7 +370,6 @@
         <div class="footer-text"><i class="ri-lock-line"></i> Seus dados são privados e seguros</div>
     </main>
 
-    <!-- Mobile Bottom Nav -->
     <nav class="bottom-nav">
         <a class="nav-btn active"><i class="ri-home-5-fill"></i> Início</a>
         <a class="nav-btn" onclick="openSettingsModal()"><i class="ri-settings-4-line"></i> Configurações</a>
@@ -377,7 +378,6 @@
         <a class="nav-btn"><i class="ri-user-line"></i> Perfil</a>
     </nav>
 
-    <!-- Modal Report AI -->
     <div id="report-modal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
@@ -388,7 +388,6 @@
         </div>
     </div>
 
-    <!-- Modal History (Relatórios) -->
     <div id="history-modal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
@@ -403,7 +402,6 @@
         </div>
     </div>
 
-    <!-- Modal Configurações -->
     <div id="settings-modal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
@@ -488,6 +486,7 @@
             document.getElementById('settings-water-input').value = getWaterTarget();
         }
 
+        // CORREÇÃO APLICADA AQUI: Adicionado <span> com o texto dentro dos botões
         function renderMealsTable() {
             const container = document.getElementById('food-table-container');
             const meals = getMeals();
@@ -497,10 +496,10 @@
                 html += `
                     <div class="food-row-title">${meal}</div>
                     <div class="food-options" style="display: contents" data-meal="${meal}">
-                        <button class="radio-btn" data-val="Segui"><div class="radio-circle"></div></button>
-                        <button class="radio-btn" data-val="Normal"><div class="radio-circle"></div></button>
-                        <button class="radio-btn" data-val="Extrapolei"><div class="radio-circle"></div></button>
-                        <button class="radio-btn" data-val="Pulei"><div class="radio-circle"></div></button>
+                        <button class="radio-btn" data-val="Segui"><div class="radio-circle"></div><span>Segui</span></button>
+                        <button class="radio-btn" data-val="Normal"><div class="radio-circle"></div><span>Normal</span></button>
+                        <button class="radio-btn" data-val="Extrapolei"><div class="radio-circle"></div><span>Extrapolei</span></button>
+                        <button class="radio-btn" data-val="Pulei"><div class="radio-circle"></div><span>Pulei</span></button>
                     </div>
                 `;
             });
@@ -533,10 +532,13 @@
                     btn.addEventListener('click', () => {
                         btns.forEach(b => {
                             b.classList.remove('active');
-                            b.innerHTML = '<div class="radio-circle"></div>';
+                            // Reseta ícone mas mantém o texto
+                            const text = b.querySelector('span').innerText;
+                            b.innerHTML = `<div class="radio-circle"></div><span>${text}</span>`;
                         });
                         btn.classList.add('active');
-                        btn.innerHTML = '<i class="ri-check-line"></i>';
+                        const activeText = btn.querySelector('span').innerText;
+                        btn.innerHTML = `<i class="ri-check-line"></i><span>${activeText}</span>`;
                     });
                 });
             });
@@ -590,7 +592,8 @@
         function clearForm() {
             document.querySelectorAll('.food-options .radio-btn').forEach(b => {
                 b.classList.remove('active');
-                b.innerHTML = '<div class="radio-circle"></div>';
+                const text = b.querySelector('span').innerText;
+                b.innerHTML = `<div class="radio-circle"></div><span>${text}</span>`;
             });
             document.querySelectorAll('.chip, .chip-card').forEach(c => c.classList.remove('active'));
             document.getElementById('agua-input').value = '';
@@ -611,7 +614,11 @@
                         const optGroup = document.querySelector(`.food-options[data-meal="${meal}"]`);
                         if(optGroup) {
                             const btn = optGroup.querySelector(`.radio-btn[data-val="${val}"]`);
-                            if(btn) { btn.classList.add('active'); btn.innerHTML = '<i class="ri-check-line"></i>'; }
+                            if(btn) { 
+                                btn.classList.add('active'); 
+                                const txt = btn.querySelector('span').innerText;
+                                btn.innerHTML = `<i class="ri-check-line"></i><span>${txt}</span>`; 
+                            }
                         }
                     }
                 }
