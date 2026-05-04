@@ -9,12 +9,14 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet">
     
+    <!-- PWA Setup -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0b1016">
     <link rel="icon" type="image/png" href="icon.png">
     <link rel="apple-touch-icon" href="icon.png">
     <meta name="apple-mobile-web-app-capable" content="yes">
     
+    <!-- Confetti Library -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         :root {
@@ -101,7 +103,6 @@
         
         .score-display { display: flex; align-items: center; gap: 20px; }
         .score-circle { position: relative; width: 100px; height: 100px; }
-        .score-circle::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 120px; height: 120px; background: radial-gradient(circle, var(--primary-glow) 0%, transparent 60%); z-index: 0; pointer-events: none; }
         .score-circle svg { position: relative; z-index: 1; transform: rotate(-90deg); }
         .score-circle text { transform: rotate(90deg); transform-origin: 50px 50px; }
         .score-text { display: flex; flex-direction: column; }
@@ -113,7 +114,6 @@
         .register-title h3 i { color: var(--primary); }
         .register-title p { color: var(--text-muted); font-size: 14px; }
         
-        /* Date Picker styling */
         .date-picker { background-color: var(--card-bg); border: 1px solid var(--border-color); padding: 10px 16px; border-radius: 12px; display: flex; align-items: center; gap: 12px; transition: background-color 0.3s, border-color 0.3s; position: relative; }
         .date-picker input[type="date"] { background: transparent; border: none; color: var(--text-main); font-family: 'Inter'; font-weight: 600; font-size: 15px; outline: none; cursor: pointer; }
         .date-picker input[type="date"]::-webkit-calendar-picker-indicator { position: absolute; top: 0; left: 0; right: 0; bottom: 0; width: auto; height: auto; color: transparent; background: transparent; cursor: pointer; }
@@ -128,9 +128,8 @@
         .food-header span:first-child { text-align: left; }
         .food-row-title { font-size: 14px; color: var(--text-main); }
         
-        /* CORREÇÃO: Radio btn agora aceita texto ao lado do círculo */
         .radio-btn { background: var(--input-bg); border: 1px solid transparent; height: 44px; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; color: var(--text-main); gap: 8px; font-size: 12px; }
-        .radio-btn span { display: none; } /* Esconde por padrão no desktop para manter a tabela limpa */
+        .radio-btn span { display: none; }
         
         .radio-btn:hover { background: var(--card-hover); }
         .radio-circle { width: 18px; height: 18px; border-radius: 50%; border: 1.5px solid var(--text-muted); flex-shrink: 0; }
@@ -164,7 +163,6 @@
         .footer-text { text-align: center; color: var(--text-muted); font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 8px; padding-bottom: 24px; }
         .bottom-nav { display: none; }
 
-        /* Modals Styles */
         .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--modal-overlay); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 20px; opacity: 0; visibility: hidden; transition: all 0.3s; }
         .modal-overlay.active { opacity: 1; visibility: visible; }
         .modal-content { width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; position: relative; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 20px; padding: 24px; transform: translateY(20px); transition: all 0.3s; }
@@ -176,11 +174,9 @@
         .modal-body { line-height: 1.6; color: var(--text-main); font-size: 15px; }
         .modal-body p { margin-bottom: 16px; }
         
-        /* Report Specific */
         .praise { color: var(--primary); font-weight: 600; }
         .warning { color: var(--warning); font-weight: 600; }
 
-        /* Chart Specific */
         .chart-container { display: flex; align-items: flex-end; justify-content: space-between; gap: 8px; height: 180px; margin-top: 24px; padding-bottom: 20px; border-bottom: 1px solid var(--border-color); }
         .chart-bar-wrapper { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; position: relative; }
         .chart-bar { width: 100%; max-width: 30px; background: var(--primary); border-radius: 6px 6px 0 0; transition: height 0.8s ease-out; height: 0%; opacity: 0.8;}
@@ -189,7 +185,6 @@
         .chart-score { position: absolute; top: -20px; font-size: 12px; font-weight: 600; color: var(--text-main); opacity: 0; transition: opacity 0.3s; }
         .chart-bar-wrapper:hover .chart-score { opacity: 1; }
         
-        /* Settings List */
         .settings-list { display: flex; flex-direction: column; gap: 12px; }
         .settings-item { display: flex; justify-content: space-between; align-items: center; background: var(--input-bg); padding: 12px 16px; border-radius: 8px; border: 1px solid var(--border-color); }
         .settings-item-actions button { background: transparent; border: none; color: var(--danger); font-size: 18px; cursor: pointer; }
@@ -203,22 +198,26 @@
             .food-header span { font-size: 12px; }
         }
         
+        /* OTIMIZAÇÃO MOBILE: GRID 2x2 PARA ECONOMIZAR ESPAÇO */
         @media (max-width: 768px) {
             .sidebar { display: none; }
-            .main-content { padding: 24px 20px 100px; }
+            .main-content { padding: 24px 16px 100px; }
             .bottom-nav { display: flex; position: fixed; bottom: 0; left: 0; right: 0; background-color: var(--sidebar-bg); border-top: 1px solid var(--border-color); padding: 12px 24px; justify-content: space-between; align-items: center; z-index: 100; transition: background-color 0.3s, border-color 0.3s;}
             .nav-btn { display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--text-muted); text-decoration: none; font-size: 12px; cursor: pointer;}
             .nav-btn i { font-size: 24px; }
             .nav-btn.active { color: var(--primary); }
             .fab-btn { width: 56px; height: 56px; background-color: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #000; font-size: 32px; transform: translateY(-20px); box-shadow: 0 8px 24px var(--primary-glow); cursor: pointer; }
             
-            /* Ajustes na tabela mobile */
-            .food-table { display: flex; flex-direction: column; gap: 16px; }
+            .food-table { display: flex; flex-direction: column; gap: 12px; }
             .food-header { display: none; }
-            .food-options { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; width: 100%; }
-            .food-row-title { font-weight: 600; margin-bottom: 4px; border-bottom: 1px solid var(--border-color); padding-bottom: 4px; width: 100%; }
-            .radio-btn { flex-direction: row; height: auto; padding: 10px; gap: 8px; font-size: 13px; justify-content: flex-start; }
-            .radio-btn span { display: block; } /* Mostra o texto no mobile */
+            
+            /* GRID 2x2 PARA OS BOTÕES */
+            .food-options { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; width: 100%; margin-bottom: 8px; }
+            .food-row-title { font-weight: 600; margin-bottom: 4px; border-bottom: 1px solid var(--border-color); padding-bottom: 4px; width: 100%; font-size: 15px; }
+            
+            .radio-btn { flex-direction: row; height: 40px; padding: 0 8px; gap: 6px; font-size: 11px; justify-content: flex-start; }
+            .radio-btn span { display: block; line-height: 1.1; }
+            .radio-circle { width: 14px; height: 14px; }
             .radio-btn.active { color: #000; }
         }
     </style>
@@ -302,14 +301,16 @@
                 </div>
             </div>
             <div class="food-table" id="food-table-container">
-                </div>
+                <!-- Injected via JS -->
+            </div>
         </div>
 
         <div class="card">
             <h3 class="section-title"><i class="ri-run-line"></i> Atividades</h3>
             <p class="section-desc">Quais atividades você realizou hoje?</p>
             <div class="chips-group" id="atividades-group">
-                </div>
+                <!-- Injected via JS -->
+            </div>
             <div id="activity-metrics-container" style="display: flex; flex-direction: column; gap: 12px; margin-top: 16px;"></div>
         </div>
 
@@ -434,8 +435,8 @@
                     <h4 style="color:var(--primary); font-size:16px; margin-bottom:12px;"><i class="ri-database-2-line"></i> Backup de Segurança</h4>
                     <p style="font-size:13px; color:var(--text-muted); margin-bottom:12px;">Gere um código com seu histórico para salvar onde quiser.</p>
                     <div style="display:flex; gap:12px;">
-                        <button onclick="exportBackup()" style="flex:1; background:var(--input-bg); border:1px solid var(--border-color); color:var(--text-main); padding:10px; border-radius:8px; cursor:pointer; font-weight:600; transition:background 0.2s;" onmouseover="this.style.background='var(--card-hover)'" onmouseout="this.style.background='var(--input-bg)'"><i class="ri-upload-cloud-2-line"></i> Copiar Backup</button>
-                        <button onclick="importBackup()" style="flex:1; background:var(--input-bg); border:1px solid var(--border-color); color:var(--text-main); padding:10px; border-radius:8px; cursor:pointer; font-weight:600; transition:background 0.2s;" onmouseover="this.style.background='var(--card-hover)'" onmouseout="this.style.background='var(--input-bg)'"><i class="ri-download-cloud-2-line"></i> Restaurar</button>
+                        <button onclick="exportBackup()" style="flex:1; background:var(--input-bg); border:1px solid var(--border-color); color:var(--text-main); padding:10px; border-radius:8px; cursor:pointer; font-weight:600; transition:background 0.2s;"><i class="ri-upload-cloud-2-line"></i> Copiar Backup</button>
+                        <button onclick="importBackup()" style="flex:1; background:var(--input-bg); border:1px solid var(--border-color); color:var(--text-main); padding:10px; border-radius:8px; cursor:pointer; font-weight:600; transition:background 0.2s;"><i class="ri-download-cloud-2-line"></i> Restaurar</button>
                     </div>
                 </div>
             </div>
@@ -443,7 +444,6 @@
     </div>
 
     <script>
-        // --- Core State ---
         const todayStr = new Date().toISOString().split('T')[0]; 
         let currentSelectedDate = todayStr;
         let defaultActivities = ['Caminhada', 'Corrida', 'Academia', 'Trabalho', 'Estudos'];
@@ -453,7 +453,6 @@
         dateInput.value = currentSelectedDate;
         dateInput.max = currentSelectedDate; 
 
-        // --- Theme Logic ---
         const htmlEl = document.documentElement;
         if(localStorage.getItem('theme') === 'light') htmlEl.setAttribute('data-theme', 'light');
         document.getElementById('theme-toggle').addEventListener('click', (e) => {
@@ -464,7 +463,6 @@
             localStorage.setItem('theme', newTheme);
         });
 
-        // --- Init Function ---
         function init() {
             updateWaterTargetBadge();
             renderMealsTable();
@@ -475,28 +473,26 @@
             checkNotification();
         }
 
-        // --- Data Getters ---
         function getActivities() { return JSON.parse(localStorage.getItem('dmais_activities')) || defaultActivities; }
         function getMeals() { return JSON.parse(localStorage.getItem('dmais_meals')) || defaultMeals; }
         function getWaterTarget() { return parseFloat(localStorage.getItem('dmais_water_target')) || 2; }
 
-        // --- Render UI ---
         function updateWaterTargetBadge() {
             document.getElementById('water-target-badge').textContent = `Meta: ${getWaterTarget()}L`;
             document.getElementById('settings-water-input').value = getWaterTarget();
         }
 
-        // CORREÇÃO APLICADA AQUI: Adicionado <span> com o texto dentro dos botões
+        // JS ATUALIZADO COM "Segui a Dieta"
         function renderMealsTable() {
             const container = document.getElementById('food-table-container');
             const meals = getMeals();
             
-            let html = `<div class="food-header"><span>Refeição</span><span>Segui a dieta</span><span>Normal</span><span>Extrapolei</span><span>Pulei</span></div>`;
+            let html = `<div class="food-header"><span>Refeição</span><span>Segui a Dieta</span><span>Normal</span><span>Extrapolei</span><span>Pulei</span></div>`;
             meals.forEach(meal => {
                 html += `
                     <div class="food-row-title">${meal}</div>
                     <div class="food-options" style="display: contents" data-meal="${meal}">
-                        <button class="radio-btn" data-val="Segui"><div class="radio-circle"></div><span>Segui</span></button>
+                        <button class="radio-btn" data-val="Segui a Dieta"><div class="radio-circle"></div><span>Segui a Dieta</span></button>
                         <button class="radio-btn" data-val="Normal"><div class="radio-circle"></div><span>Normal</span></button>
                         <button class="radio-btn" data-val="Extrapolei"><div class="radio-circle"></div><span>Extrapolei</span></button>
                         <button class="radio-btn" data-val="Pulei"><div class="radio-circle"></div><span>Pulei</span></button>
@@ -516,7 +512,6 @@
             setupChipsInteractivity(container.querySelectorAll('.chip'));
         }
 
-        // --- Interactivity Setup ---
         function setupInteractivity() {
             setupChipsInteractivity(document.querySelectorAll('.card:not(:nth-child(5)) .chip, .chip-card'));
             dateInput.addEventListener('change', (e) => {
@@ -532,7 +527,6 @@
                     btn.addEventListener('click', () => {
                         btns.forEach(b => {
                             b.classList.remove('active');
-                            // Reseta ícone mas mantém o texto
                             const text = b.querySelector('span').innerText;
                             b.innerHTML = `<div class="radio-circle"></div><span>${text}</span>`;
                         });
@@ -588,7 +582,6 @@
             container.innerHTML = html;
         }
 
-        // --- Load / Clear Data ---
         function clearForm() {
             document.querySelectorAll('.food-options .radio-btn').forEach(b => {
                 b.classList.remove('active');
@@ -613,7 +606,9 @@
                     for(const [meal, val] of Object.entries(data.food)) {
                         const optGroup = document.querySelector(`.food-options[data-meal="${meal}"]`);
                         if(optGroup) {
-                            const btn = optGroup.querySelector(`.radio-btn[data-val="${val}"]`);
+                            // Compatibilidade com salvamentos antigos "Segui"
+                            let searchVal = val === "Segui" ? "Segui a Dieta" : val;
+                            const btn = optGroup.querySelector(`.radio-btn[data-val="${searchVal}"]`);
                             if(btn) { 
                                 btn.classList.add('active'); 
                                 const txt = btn.querySelector('span').innerText;
@@ -652,7 +647,6 @@
             }
         }
 
-        // --- Save & Calculate Logic ---
         function gatherFormData() {
             let data = { food: {}, activities: [], activityMetrics: {}, water: null, standing: null, screen: null, sleep: null };
             
@@ -684,8 +678,6 @@
 
         function calculateScoreAndReport(formData) {
             let score = 0, praises = [], warnings = [];
-            
-            // Dynamic Food
             let dietFollowed = 0, dietFailed = 0;
             let foodPoints = 0;
             const expectedMeals = getMeals().length;
@@ -693,59 +685,33 @@
             
             for(const meal in formData.food) {
                 const val = formData.food[meal];
-                if(val === 'Segui') { foodPoints += 2; dietFollowed++; }
+                if(val === 'Segui a Dieta') { foodPoints += 2; dietFollowed++; }
                 else if(val === 'Extrapolei' || val === 'Pulei') { foodPoints -= 1; dietFailed++; }
             }
             score += foodPoints;
 
             if(expectedMeals > 0) {
-                if((dietFollowed / expectedMeals) >= 0.75) praises.push('Alimentação excelente, manter a dieta é fundamental!');
-                else if((dietFailed / expectedMeals) >= 0.5) warnings.push('Você extrapolou/pulou várias refeições. Tente manter a constância.');
+                if((dietFollowed / expectedMeals) >= 0.75) praises.push('Alimentação excelente!');
+                else if((dietFailed / expectedMeals) >= 0.5) warnings.push('Você extrapolou/pulou várias refeições.');
             }
 
-            // Activities (max 3 points for math normalization)
             let activityScore = Math.min(3, formData.activities.length);
             score += activityScore;
             if(formData.activities.length >= 2) praises.push('Ótimo trabalho se mantendo ativo!');
-            else if(formData.activities.length === 0) warnings.push('Tente incluir alguma atividade no seu dia.');
-
-            // Dynamic Water
+            
             let waterVal = parseFloat(formData.water) || 0;
             let waterTarget = getWaterTarget();
-            if(waterVal >= waterTarget) { score += 2; praises.push(`Hidratação em dia, meta de ${waterTarget}L alcançada!`); }
-            else if(waterVal > 0) warnings.push(`Tente beber mais água para bater a meta de ${waterTarget}L.`);
+            if(waterVal >= waterTarget) { score += 2; praises.push(`Hidratação alcançada!`); }
+            
+            if(formData.screen === 'Baixo') { score += 2; praises.push('Bom controle de tela!'); }
+            if(formData.sleep === 'Excelente' || formData.sleep === 'Bom') { score += 3; praises.push('Bom sono!'); }
 
-            // Standing
-            let standingVal = parseFloat(formData.standing) || 0;
-            if(standingVal >= 4) { score += 1; praises.push('Bom tempo em pé, isso ajuda na circulação.'); }
-
-            // Screen
-            if(formData.screen === 'Baixo') { score += 2; praises.push('Excelente controle de tempo de tela!'); }
-            else if(formData.screen === 'Alto') { score -= 1; warnings.push('Tempo de tela muito alto. Descanse os olhos.'); }
-
-            // Sleep
-            if(formData.sleep === 'Excelente' || formData.sleep === 'Bom') { score += 3; praises.push('Bom sono! O descanso é chave para a evolução.'); }
-            else if(formData.sleep === 'Ruim') { score -= 2; warnings.push('Sono ruim. Crie um ambiente relaxante antes de dormir.'); }
-
-            // Math Normalization
-            let maxFixedScore = maxFoodPoints + 3 + 2 + 1 + 2 + 3; // Food + Act + Water + Stand + Screen + Sleep
-            if(maxFixedScore === 0) maxFixedScore = 1; // avoid div by 0
-
+            let maxFixedScore = maxFoodPoints + 3 + 2 + 1 + 2 + 3; 
             let finalScoreRaw = Math.round((score / maxFixedScore) * 10);
             let finalScore = Math.min(10, Math.max(1, finalScoreRaw));
-            if(isNaN(finalScore)) finalScore = 5;
 
-            let label = "Normal";
-            if(finalScore >= 8) label = "Excelente";
-            else if(finalScore >= 6) label = "Bom";
-            else if(finalScore <= 4) label = "Atenção";
-
-            let htmlText = `<p>Analisando seu dia, seu score foi <strong style="color:var(--primary)">${finalScore}/10</strong> (${label}).</p>`;
-            if(praises.length > 0) htmlText += `<p><span class="praise">Positivo:</span><br>` + praises.map(p => `• ${p}`).join('<br>') + `</p>`;
-            if(warnings.length > 0) htmlText += `<p><span class="warning">A Melhorar:</span><br>` + warnings.map(w => `• ${w}`).join('<br>') + `</p>`;
-            if(finalScore >= 7) htmlText += `<p><strong>A IA diz:</strong> Continue assim, o corpo agradece!</p>`;
-            else htmlText += `<p><strong>A IA diz:</strong> Alguns deslizes hoje, mas o importante é a consistência. Foque amanhã!</p>`;
-
+            let label = finalScore >= 8 ? "Excelente" : (finalScore >= 6 ? "Bom" : "Atenção");
+            let htmlText = `<p>Score: <strong style="color:var(--primary)">${finalScore}/10</strong>.</p>`;
             return { score: finalScore, label: label, reportHtml: htmlText };
         }
 
@@ -762,12 +728,7 @@
 
             updateScoreCircle(result.score, result.label);
             updateStreakUI();
-            document.getElementById('notification-bell').classList.remove('notify-pulse'); 
-            
-            if(result.score >= 8) {
-                confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, colors: ['#15f56b', '#ffffff', '#0ea5e9'] });
-            }
-            
+            if(result.score >= 8) confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
             document.getElementById('ai-report-text').innerHTML = result.reportHtml;
             document.getElementById('report-modal').classList.add('active');
         });
@@ -776,28 +737,15 @@
             document.getElementById('score-text-val').textContent = score;
             document.getElementById('score-label').textContent = label;
             const ring = document.getElementById('score-ring');
-            if(score === '-') {
-                ring.style.strokeDashoffset = 251.2;
-            } else {
-                const offset = 251.2 - (251.2 * (score / 10));
-                ring.style.strokeDashoffset = offset;
-            }
+            ring.style.strokeDashoffset = score === '-' ? 251.2 : 251.2 - (251.2 * (score / 10));
         }
 
-        // --- Streak Calculation ---
         function calculateStreak() {
-            let streak = 0;
-            let d = new Date();
+            let streak = 0, d = new Date();
             const tKey = d.toISOString().split('T')[0];
-            
-            if(!localStorage.getItem('dmais_saude_record_' + tKey)) { d.setDate(d.getDate() - 1); }
-
-            while(true) {
-                let key = d.toISOString().split('T')[0];
-                if(localStorage.getItem('dmais_saude_record_' + key)) {
-                    streak++;
-                    d.setDate(d.getDate() - 1);
-                } else { break; }
+            if(!localStorage.getItem('dmais_saude_record_' + tKey)) d.setDate(d.getDate() - 1);
+            while(localStorage.getItem('dmais_saude_record_' + d.toISOString().split('T')[0])) {
+                streak++; d.setDate(d.getDate() - 1);
             }
             return streak;
         }
@@ -805,255 +753,77 @@
         function updateStreakUI() {
             const streak = calculateStreak();
             const badge = document.getElementById('streak-badge');
-            if(streak > 0) {
-                badge.style.display = 'flex';
-                document.getElementById('streak-count').textContent = streak;
-            } else { badge.style.display = 'none'; }
+            badge.style.display = streak > 0 ? 'flex' : 'none';
+            document.getElementById('streak-count').textContent = streak;
         }
 
-        // --- Smart Notification ---
         function checkNotification() {
-            const hour = new Date().getHours();
-            if(hour >= 20 && !localStorage.getItem('dmais_saude_record_' + todayStr)) {
+            if(new Date().getHours() >= 20 && !localStorage.getItem('dmais_saude_record_' + todayStr))
                 document.getElementById('notification-bell').classList.add('notify-pulse');
-            }
         }
 
         function showNotificationAlert() {
-            const bell = document.getElementById('notification-bell');
-            if(bell.classList.contains('notify-pulse')) {
-                alert("Ei! Já é noite e você ainda não registrou seus hábitos de hoje. Cuide da sua saúde!");
-                bell.classList.remove('notify-pulse');
-            } else {
-                alert("Tudo certo por aqui! Sem novas notificações.");
-            }
+            alert(document.getElementById('notification-bell').classList.contains('notify-pulse') ? "Não esqueça de registrar seu dia!" : "Sem notificações.");
         }
 
-        // --- Modals Management ---
         function showReportModal() {
             const saved = localStorage.getItem('dmais_saude_record_' + currentSelectedDate);
             if(saved) {
                 document.getElementById('ai-report-text').innerHTML = JSON.parse(saved).report;
                 document.getElementById('report-modal').classList.add('active');
-            } else {
-                alert(`Nenhum registro encontrado para ${currentSelectedDate.split('-').reverse().join('/')}.`);
             }
         }
 
         function openHistoryModal() {
             const chartContainer = document.getElementById('chart-container');
-            const statsContainer = document.getElementById('history-stats-container');
             chartContainer.innerHTML = '';
-            
-            let html = '';
-            let d = new Date();
-            let totalWater = 0;
-            let actTotals = {};
-
             for(let i=6; i>=0; i--) {
-                let checkDate = new Date();
-                checkDate.setDate(checkDate.getDate() - i);
+                let checkDate = new Date(); checkDate.setDate(checkDate.getDate() - i);
                 let key = checkDate.toISOString().split('T')[0];
-                let label = checkDate.toLocaleDateString('pt-BR', {weekday: 'short'}).replace('.','');
-                
                 let saved = localStorage.getItem('dmais_saude_record_' + key);
-                if(saved) {
-                    let record = JSON.parse(saved);
-                    let score = record.score || 0;
-                    let height = score * 10; 
-                    
-                    html += `
-                        <div class="chart-bar-wrapper">
-                            <span class="chart-score">${score > 0 ? score : ''}</span>
-                            <div class="chart-bar" style="height: ${height}%"></div>
-                            <span class="chart-label">${label}</span>
-                        </div>
-                    `;
-
-                    if(record.water) totalWater += parseFloat(record.water);
-                    if(record.activityMetrics) {
-                        for(const act in record.activityMetrics) {
-                            actTotals[act] = (actTotals[act] || 0) + record.activityMetrics[act];
-                        }
-                    }
-                } else {
-                    html += `
-                        <div class="chart-bar-wrapper">
-                            <span class="chart-score"></span>
-                            <div class="chart-bar" style="height: 0%"></div>
-                            <span class="chart-label">${label}</span>
-                        </div>
-                    `;
-                }
+                let score = saved ? JSON.parse(saved).score : 0;
+                chartContainer.innerHTML += `<div class="chart-bar-wrapper"><span class="chart-score">${score || ''}</span><div class="chart-bar" style="height: ${score*10}%"></div><span class="chart-label">${checkDate.toLocaleDateString('pt-BR', {weekday: 'short'})}</span></div>`;
             }
-            chartContainer.innerHTML = html;
-
-            if(statsContainer) {
-                let statsHtml = `<div style="margin-top:24px; padding-top:16px; border-top:1px solid var(--border-color);">
-                    <h4 style="color:var(--text-main); margin-bottom:16px; font-size:15px;"><i class="ri-fire-fill" style="color:var(--warning)"></i> Acumulado da Semana (7 dias)</h4>`;
-                
-                let hasStats = false;
-                for(const act in actTotals) {
-                    statsHtml += `<div style="display:flex; justify-content:space-between; margin-bottom:8px; color:var(--text-muted); font-size:14px;"><span>${act}</span> <span style="color:var(--primary); font-weight:600;">${actTotals[act].toFixed(1)} km</span></div>`;
-                    hasStats = true;
-                }
-                if(totalWater > 0) {
-                    statsHtml += `<div style="display:flex; justify-content:space-between; margin-bottom:8px; color:var(--text-muted); font-size:14px;"><span>Água Bebida</span> <span style="color:#0ea5e9; font-weight:600;">${totalWater.toFixed(1)} L</span></div>`;
-                    hasStats = true;
-                }
-                if(!hasStats) statsHtml += `<p style="color:var(--text-muted); font-size:13px;">Nenhum volume registrado nos últimos 7 dias.</p>`;
-                
-                statsHtml += `</div>`;
-                statsContainer.innerHTML = statsHtml;
-            }
-
             document.getElementById('history-modal').classList.add('active');
         }
 
-        function openSettingsModal() {
-            renderSettingsList();
-            document.getElementById('settings-modal').classList.add('active');
-        }
-
-        function saveWaterTarget(val) {
-            localStorage.setItem('dmais_water_target', val);
-            updateWaterTargetBadge();
-            loadDataForDate(currentSelectedDate);
-        }
+        function openSettingsModal() { renderSettingsList(); document.getElementById('settings-modal').classList.add('active'); }
+        function saveWaterTarget(val) { localStorage.setItem('dmais_water_target', val); updateWaterTargetBadge(); }
 
         function renderSettingsList() {
-            // Activities
             const actList = document.getElementById('settings-activities-list');
             actList.innerHTML = '';
-            getActivities().forEach((act, index) => {
-                actList.innerHTML += `
-                    <div class="settings-item">
-                        <span>${act}</span>
-                        <div class="settings-item-actions"><button onclick="removeActivity(${index})"><i class="ri-delete-bin-line"></i></button></div>
-                    </div>
-                `;
-            });
-            // Meals
+            getActivities().forEach((act, index) => actList.innerHTML += `<div class="settings-item"><span>${act}</span><button onclick="removeActivity(${index})"><i class="ri-delete-bin-line"></i></button></div>`);
             const mealList = document.getElementById('settings-meals-list');
             mealList.innerHTML = '';
-            getMeals().forEach((meal, index) => {
-                mealList.innerHTML += `
-                    <div class="settings-item">
-                        <span>${meal}</span>
-                        <div class="settings-item-actions"><button onclick="removeMeal(${index})"><i class="ri-delete-bin-line"></i></button></div>
-                    </div>
-                `;
-            });
+            getMeals().forEach((meal, index) => mealList.innerHTML += `<div class="settings-item"><span>${meal}</span><button onclick="removeMeal(${index})"><i class="ri-delete-bin-line"></i></button></div>`);
         }
 
-        function addActivity() {
-            const input = document.getElementById('new-activity-input');
-            if(input.value.trim()) {
-                let acts = getActivities();
-                acts.push(input.value.trim());
-                localStorage.setItem('dmais_activities', JSON.stringify(acts));
-                input.value = '';
-                renderSettingsList();
-                renderActivitiesChips();
-                loadDataForDate(currentSelectedDate);
-            }
+        function addActivity() { 
+            let acts = getActivities(); acts.push(document.getElementById('new-activity-input').value);
+            localStorage.setItem('dmais_activities', JSON.stringify(acts)); renderSettingsList(); renderActivitiesChips();
         }
-
-        window.removeActivity = function(index) {
-            let acts = getActivities();
-            acts.splice(index, 1);
-            localStorage.setItem('dmais_activities', JSON.stringify(acts));
-            renderSettingsList();
-            renderActivitiesChips();
-            loadDataForDate(currentSelectedDate);
+        window.removeActivity = function(i) {
+            let acts = getActivities(); acts.splice(i, 1);
+            localStorage.setItem('dmais_activities', JSON.stringify(acts)); renderSettingsList(); renderActivitiesChips();
         }
-
         function addMeal() {
-            const input = document.getElementById('new-meal-input');
-            if(input.value.trim()) {
-                let meals = getMeals();
-                meals.push(input.value.trim());
-                localStorage.setItem('dmais_meals', JSON.stringify(meals));
-                input.value = '';
-                renderSettingsList();
-                renderMealsTable();
-                loadDataForDate(currentSelectedDate);
-            }
+            let meals = getMeals(); meals.push(document.getElementById('new-meal-input').value);
+            localStorage.setItem('dmais_meals', JSON.stringify(meals)); renderSettingsList(); renderMealsTable();
+        }
+        window.removeMeal = function(i) {
+            let meals = getMeals(); meals.splice(i, 1);
+            localStorage.setItem('dmais_meals', JSON.stringify(meals)); renderSettingsList(); renderMealsTable();
         }
 
-        window.removeMeal = function(index) {
-            let meals = getMeals();
-            meals.splice(index, 1);
-            localStorage.setItem('dmais_meals', JSON.stringify(meals));
-            renderSettingsList();
-            renderMealsTable();
-            loadDataForDate(currentSelectedDate);
+        function closeModals() { document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active')); }
+        function exportBackup() { prompt("Backup:", btoa(encodeURIComponent(JSON.stringify(localStorage)))); }
+        function importBackup() { 
+            const data = JSON.parse(decodeURIComponent(atob(prompt("Código:"))));
+            for(const k in data) localStorage.setItem(k, data[k]); location.reload();
         }
 
-        function closeModals() {
-            document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active'));
-        }
-
-        document.querySelectorAll('.modal-overlay').forEach(modal => {
-            modal.addEventListener('click', (e) => { if(e.target === modal) modal.classList.remove('active'); });
-        });
-
-        // --- Backup & Restore ---
-        function exportBackup() {
-            let backupData = {};
-            for (let i = 0; i < localStorage.length; i++) {
-                let key = localStorage.key(i);
-                if (key.startsWith('dmais_')) {
-                    backupData[key] = localStorage.getItem(key);
-                }
-            }
-            const backupString = btoa(encodeURIComponent(JSON.stringify(backupData)));
-            
-            // Try clipboard API, fallback to prompt
-            if(navigator.clipboard && window.isSecureContext) {
-                navigator.clipboard.writeText(backupString).then(() => {
-                    alert("✅ Código de backup copiado para sua área de transferência! Cole em um lugar seguro (ex: Bloco de Notas ou WhatsApp).");
-                }).catch(err => {
-                    prompt("Copie seu código de backup abaixo:", backupString);
-                });
-            } else {
-                prompt("Copie seu código de backup abaixo:", backupString);
-            }
-        }
-
-        function importBackup() {
-            const input = prompt("Cole o código do seu backup abaixo para restaurar seus dados.\n\n⚠️ Atenção: isso substituirá todo o seu histórico atual.");
-            if (input) {
-                try {
-                    const backupData = JSON.parse(decodeURIComponent(atob(input)));
-                    let hasData = false;
-                    for (const key in backupData) {
-                        if (key.startsWith('dmais_')) {
-                            localStorage.setItem(key, backupData[key]);
-                            hasData = true;
-                        }
-                    }
-                    if(hasData) {
-                        alert("✅ Backup restaurado com sucesso! A página será recarregada.");
-                        location.reload();
-                    } else {
-                        alert("❌ Nenhum dado válido encontrado nesse código.");
-                    }
-                } catch (e) {
-                    alert("❌ Código de backup inválido ou corrompido.");
-                }
-            }
-        }
-
-        // Run Initialization
         window.addEventListener('DOMContentLoaded', init);
-
-        // --- PWA Service Worker ---
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js');
-            });
-        }
     </script>
 </body>
 </html>
