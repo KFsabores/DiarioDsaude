@@ -180,6 +180,7 @@
             transition: all 0.2s; 
         }
         .notification-btn:hover { border-color: var(--primary); background: var(--primary-dim); color: var(--primary); }
+        .mobile-only { display: none; }
 
         /* Cards */
         .card { 
@@ -334,7 +335,8 @@
             .sidebar { display: none; }
             .main-content { padding: 20px 20px 120px; }
             
-            .top-bar { margin-bottom: 24px; position: sticky; top: 0; z-index: 50; padding: 12px 0; background: transparent; }
+            .top-bar { margin-bottom: 24px; position: sticky; top: 0; z-index: 50; padding: 12px 0; background: transparent; display: flex; justify-content: space-between; }
+            .mobile-only { display: flex; }
             
             .score-card { flex-direction: column; text-align: center; gap: 24px; padding: 32px 24px; }
             .score-info h2 { font-size: 28px; }
@@ -614,6 +616,10 @@
 
     <main class="main-content">
         <div class="top-bar">
+            <button class="notification-btn mobile-only" onclick="openSettingsModal()">
+                <i class="ri-settings-3-line"></i>
+            </button>
+
             <div class="streak-badge" id="streak-badge">
                 <i class="ri-fire-fill"></i> <span id="streak-count">0</span> dias
             </div>
