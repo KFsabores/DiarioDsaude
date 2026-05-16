@@ -570,8 +570,25 @@
         }
         .add-activity-row button:active { transform: scale(0.95); }
 
-        .footer-text { text-align: center; color: var(--text-muted); font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 40px 0; font-weight: 500; }
+            .footer-text { text-align: center; color: var(--text-muted); font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 40px 0; font-weight: 500; }
         .bottom-nav { display: none; }
+
+        /* AI Analysis UI */
+        .ai-analysis { display: flex; flex-direction: column; gap: 24px; }
+        .ai-header { display: flex; align-items: center; gap: 20px; background: var(--input-bg); padding: 20px; border-radius: 20px; border: 1px solid var(--border-color); }
+        .ai-score-badge { width: 56px; height: 56px; background: var(--primary); color: #052e16; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 800; }
+        .ai-label-group { display: flex; flex-direction: column; gap: 4px; }
+        .ai-label-tag { background: var(--primary-dim); color: var(--primary); padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 700; text-transform: uppercase; width: fit-content; }
+        .ai-date { color: var(--text-muted); font-size: 13px; }
+        .ai-section h4 { font-size: 15px; font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+        .ai-section ul { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+        .ai-section li { display: flex; align-items: flex-start; gap: 10px; font-size: 14px; color: var(--text-main); line-height: 1.4; }
+        .ai-section li i { margin-top: 2px; font-size: 16px; }
+
+        .evolution-filters { display: flex; gap: 12px; margin-bottom: 24px; background: var(--input-bg); padding: 16px; border-radius: 16px; border: 1px solid var(--border-color); }
+        .filter-group { flex: 1; display: flex; flex-direction: column; gap: 6px; }
+        .filter-group label { font-size: 12px; color: var(--text-muted); font-weight: 600; }
+        .filter-group input { background: transparent; border: none; color: var(--text-main); font-weight: 700; font-size: 14px; outline: none; }
     </style>
 </head>
 <body>
@@ -609,7 +626,10 @@
             <div class="score-info">
                 <h2>Olá! 👋</h2>
                 <p>Pronto para registrar<br>seu dia?</p>
-                <button class="btn-report" onclick="showReportModal()"><i class="ri-bar-chart-grouped-line"></i> Ver relatório do dia <i class="ri-arrow-right-s-line"></i></button>
+                <div style="display:flex; gap:12px; flex-wrap:wrap;">
+                    <button class="btn-report" onclick="showReportModal()"><i class="ri-sparkling-2-line"></i> Análise IA</button>
+                    <button class="btn-report" style="background:var(--card-hover); border-color:var(--border-color); color:var(--text-main)" onclick="openEvolutionModal()"><i class="ri-line-chart-line"></i> Evolução</button>
+                </div>
             </div>
             <div class="score-display">
                 <div class="score-circle">
@@ -782,6 +802,31 @@
                         <button onclick="importBackup()" style="flex:1; background:var(--input-bg); border:1px solid var(--border-color); color:var(--text-main); padding:10px; border-radius:8px; cursor:pointer; font-weight:600; transition:background 0.2s;"><i class="ri-download-cloud-2-line"></i> Restaurar</button>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="evolution-modal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 700px;">
+            <div class="modal-header">
+                <h3><i class="ri-line-chart-line" style="color:var(--primary)"></i> Gráfico de Evolução</h3>
+                <button class="close-modal" onclick="closeModals()"><i class="ri-close-line"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="evolution-filters">
+                    <div class="filter-group">
+                        <label>Início</label>
+                        <input type="date" id="evo-start-date">
+                    </div>
+                    <div class="filter-group">
+                        <label>Fim</label>
+                        <input type="date" id="evo-end-date">
+                    </div>
+                    <button class="btn-report" onclick="renderEvolutionChart()" style="padding: 0 20px; height: 44px; align-self: flex-end;"><i class="ri-refresh-line"></i></button>
+                </div>
+                <p>Acompanhe a oscilação do seu Score no período selecionado:</p>
+                <div class="chart-container" id="evolution-chart-container" style="height: 250px;"></div>
+                <div id="evolution-stats" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 24px;"></div>
             </div>
         </div>
     </div>
@@ -1020,42 +1065,79 @@
         }
 
         function calculateScoreAndReport(formData) {
-            let score = 0, praises = [], warnings = [];
+            let score = 0, praises = [], warnings = [], tips = [];
             let dietFollowed = 0, dietFailed = 0;
-            let foodPoints = 0;
+            const meals = Object.keys(formData.food);
             const expectedMeals = getMeals().length;
-            const maxFoodPoints = expectedMeals * 2;
             
+            // Alimentação
             for(const meal in formData.food) {
                 const val = formData.food[meal];
-                if(val === 'Segui a Dieta') { foodPoints += 2; dietFollowed++; }
-                else if(val === 'Extrapolei' || val === 'Pulei') { foodPoints -= 1; dietFailed++; }
+                if(val === 'Segui a Dieta') { score += 2; dietFollowed++; }
+                else if(val === 'Extrapolei') { score -= 1; dietFailed++; }
+                else if(val === 'Pulei') { score -= 0.5; }
             }
-            score += foodPoints;
+            if(dietFollowed === expectedMeals && expectedMeals > 0) praises.push("<b>Disciplina impecável!</b> Você seguiu 100% da sua dieta hoje.");
+            else if(dietFollowed > 0) praises.push(`Bom trabalho seguindo a dieta em ${dietFollowed} refeições.`);
+            if(dietFailed > 0) warnings.push(`Atenção às escapadas: ${dietFailed} refeições foram fora do plano.`);
+            if(expectedMeals > Object.keys(formData.food).length) warnings.push("Algumas refeições não foram registradas.");
 
-            if(expectedMeals > 0) {
-                if((dietFollowed / expectedMeals) >= 0.75) praises.push('Alimentação excelente!');
-                else if((dietFailed / expectedMeals) >= 0.5) warnings.push('Você extrapolou/pulou várias refeições.');
-            }
+            // Atividades
+            const actCount = formData.activities.length;
+            score += Math.min(4, actCount * 1.5);
+            if(actCount >= 2) praises.push("<b>Ativo e em movimento!</b> Seu corpo agradece pelo esforço nas atividades.");
+            else if(actCount === 1) tips.push("Tente adicionar uma segunda atividade leve amanhã.");
+            else warnings.push("Sentimos falta de movimento hoje. Que tal uma caminhada curta amanhã?");
 
-            let activityScore = Math.min(3, formData.activities.length);
-            score += activityScore;
-            if(formData.activities.length >= 2) praises.push('Ótimo trabalho se mantendo ativo!');
-            
+            // Água
             let waterVal = parseFloat(formData.water) || 0;
             let waterTarget = getWaterTarget();
-            if(waterVal >= waterTarget) { score += 2; praises.push(`Hidratação alcançada!`); }
-            
-            if(formData.screen === 'Baixo') { score += 2; praises.push('Bom controle de tela!'); }
-            if(formData.sleep === 'Excelente' || formData.sleep === 'Bom') { score += 3; praises.push('Bom sono!'); }
+            if(waterVal >= waterTarget) { score += 3; praises.push(`<b>Meta de hidratação batida!</b> ${waterVal}L é excelente.`); }
+            else if(waterVal > 0) { warnings.push(`Você bebeu ${waterVal}L, mas sua meta é ${waterTarget}L. Faltou pouco!`); }
+            else tips.push("Não esqueça de beber água! Hidratação é a base de tudo.");
 
-            let maxFixedScore = maxFoodPoints + 3 + 2 + 1 + 2 + 3; 
+            // Sono
+            if(formData.sleep === 'Excelente' || formData.sleep === 'Bom') { score += 3; praises.push("Sono de qualidade recupera o corpo e a mente."); }
+            else if(formData.sleep === 'Ruim') { score -= 1; warnings.push("Um sono ruim prejudica sua evolução. Tente desligar telas mais cedo."); }
+
+            // Tela
+            if(formData.screen === 'Baixo') { score += 2; praises.push("Menos tempo de tela significa mais tempo para o que importa."); }
+            else if(formData.screen === 'Alto') { score -= 1; warnings.push("Tempo de tela muito alto. Cuidado com o cansaço visual."); }
+
+            // Score Final (0-10)
+            let maxFixedScore = (expectedMeals * 2) + 4 + 3 + 3 + 2; 
             let finalScoreRaw = Math.round((score / maxFixedScore) * 10);
-            let finalScore = Math.min(10, Math.max(1, finalScoreRaw));
+            let finalScore = Math.min(10, Math.max(1, finalScoreRaw || 1));
+            
+            let label = finalScore >= 9 ? "Incrível" : (finalScore >= 7 ? "Muito Bom" : (finalScore >= 5 ? "Regular" : "Pode Melhorar"));
+            
+            let reportHtml = `
+                <div class="ai-analysis">
+                    <div class="ai-header">
+                        <div class="ai-score-badge">${finalScore}</div>
+                        <div class="ai-label-group">
+                            <span class="ai-label-tag">${label}</span>
+                            <span class="ai-date">${currentSelectedDate}</span>
+                        </div>
+                    </div>
+                    <div class="ai-section">
+                        <h4 style="color:var(--primary)"><i class="ri-medal-line"></i> Conquistas</h4>
+                        <ul>${praises.map(p => `<li><i class="ri-check-line"></i> ${p}</li>`).join('')}</ul>
+                    </div>
+                    ${warnings.length > 0 ? `
+                    <div class="ai-section">
+                        <h4 style="color:var(--danger)"><i class="ri-error-warning-line"></i> Pontos de Atenção</h4>
+                        <ul>${warnings.map(w => `<li><i class="ri-arrow-right-s-line"></i> ${w}</li>`).join('')}</ul>
+                    </div>` : ''}
+                    ${tips.length > 0 ? `
+                    <div class="ai-section">
+                        <h4 style="color:var(--warning)"><i class="ri-lightbulb-line"></i> Dica do D+</h4>
+                        <ul>${tips.map(t => `<li><i class="ri-focus-2-line"></i> ${t}</li>`).join('')}</ul>
+                    </div>` : ''}
+                </div>
+            `;
 
-            let label = finalScore >= 8 ? "Excelente" : (finalScore >= 6 ? "Bom" : "Atenção");
-            let htmlText = `<p>Score: <strong style="color:var(--primary)">${finalScore}/10</strong>.</p>`;
-            return { score: finalScore, label: label, reportHtml: htmlText };
+            return { score: finalScore, label: label, reportHtml: reportHtml };
         }
 
         document.getElementById('btn-save').addEventListener('click', () => {
@@ -1111,22 +1193,107 @@
 
         function showReportModal() {
             const saved = localStorage.getItem('dmais_saude_record_' + currentSelectedDate);
+            const container = document.getElementById('ai-report-text');
             if(saved) {
-                document.getElementById('ai-report-text').innerHTML = JSON.parse(saved).report;
-                document.getElementById('report-modal').classList.add('active');
+                const data = JSON.parse(saved);
+                container.innerHTML = data.report || `<p style="text-align:center; padding:40px; color:var(--text-muted)">A análise para este dia está em formato antigo. Salve novamente para atualizar.</p>`;
+            } else {
+                container.innerHTML = `<p style="text-align:center; padding:40px; color:var(--text-muted)">Nenhum registro encontrado para <b>${currentSelectedDate}</b>.<br>Preencha os dados primeiro!</p>`;
             }
+            document.getElementById('report-modal').classList.add('active');
+        }
+
+        function openEvolutionModal() {
+            const end = new Date();
+            const start = new Date();
+            start.setDate(start.getDate() - 15);
+            
+            document.getElementById('evo-end-date').value = end.toISOString().split('T')[0];
+            document.getElementById('evo-start-date').value = start.toISOString().split('T')[0];
+            
+            renderEvolutionChart();
+            document.getElementById('evolution-modal').classList.add('active');
+        }
+
+        function renderEvolutionChart() {
+            const startStr = document.getElementById('evo-start-date').value;
+            const endStr = document.getElementById('evo-end-date').value;
+            const container = document.getElementById('evolution-chart-container');
+            const statsContainer = document.getElementById('evolution-stats');
+            
+            if(!startStr || !endStr) return;
+            
+            let start = new Date(startStr);
+            let end = new Date(endStr);
+            let days = [];
+            let scores = [];
+            let totalScore = 0;
+            let count = 0;
+
+            for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+                const key = d.toISOString().split('T')[0];
+                const saved = localStorage.getItem('dmais_saude_record_' + key);
+                days.push(key.split('-').slice(1).reverse().join('/')); // DD/MM
+                if(saved) {
+                    const val = JSON.parse(saved).score || 0;
+                    scores.push(val);
+                    totalScore += val;
+                    count++;
+                } else {
+                    scores.push(0);
+                }
+            }
+
+            let html = '';
+            scores.forEach((s, i) => {
+                const h = (s / 10) * 100;
+                html += `
+                    <div class="chart-bar-wrapper" style="min-width:40px;">
+                        <span class="chart-score" style="opacity:${s > 0 ? 1 : 0}">${s}</span>
+                        <div class="chart-bar" style="height: ${h}%"></div>
+                        <span class="chart-label" style="font-size:10px">${days[i]}</span>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+
+            const avg = count > 0 ? (totalScore / count).toFixed(1) : 0;
+            statsContainer.innerHTML = `
+                <div class="ai-header" style="flex-direction:column; align-items:flex-start; gap:8px;">
+                    <span class="ai-date">Média de Score</span>
+                    <span style="font-size:24px; font-weight:800; color:var(--primary)">${avg}</span>
+                </div>
+                <div class="ai-header" style="flex-direction:column; align-items:flex-start; gap:8px;">
+                    <span class="ai-date">Dias Registrados</span>
+                    <span style="font-size:24px; font-weight:800; color:var(--text-main)">${count}</span>
+                </div>
+            `;
         }
 
         function openHistoryModal() {
-            const chartContainer = document.getElementById('chart-container');
-            chartContainer.innerHTML = '';
+            const container = document.getElementById('chart-container');
+            let html = '';
+            let last7Days = [];
             for(let i=6; i>=0; i--) {
-                let checkDate = new Date(); checkDate.setDate(checkDate.getDate() - i);
-                let key = checkDate.toISOString().split('T')[0];
-                let saved = localStorage.getItem('dmais_saude_record_' + key);
-                let score = saved ? JSON.parse(saved).score : 0;
-                chartContainer.innerHTML += `<div class="chart-bar-wrapper"><span class="chart-score">${score || ''}</span><div class="chart-bar" style="height: ${score*10}%"></div><span class="chart-label">${checkDate.toLocaleDateString('pt-BR', {weekday: 'short'})}</span></div>`;
+                let d = new Date();
+                d.setDate(d.getDate() - i);
+                last7Days.push(d.toISOString().split('T')[0]);
             }
+
+            last7Days.forEach(date => {
+                const saved = localStorage.getItem('dmais_saude_record_' + date);
+                const score = saved ? JSON.parse(saved).score : 0;
+                const h = (score / 10) * 100;
+                const dayLabel = date.split('-')[2] + '/' + date.split('-')[1];
+                html += `
+                    <div class="chart-bar-wrapper">
+                        <span class="chart-score">${score || ''}</span>
+                        <div class="chart-bar" style="height: ${h}%"></div>
+                        <span class="chart-label">${dayLabel}</span>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
             document.getElementById('history-modal').classList.add('active');
         }
 
